@@ -8,7 +8,10 @@ public class Client {
 
         HTMLDocument htmlObject = new HTMLDocument(url1);
 //        System.out.println(htmlObject.getTitle());
-        htmlObject.printAllTags();
+//        htmlObject.printAllTags();
+//        System.out.println(htmlObject.getLinks());
+//        System.out.println(htmlObject.getTags());
+//        System.out.println(htmlObject.getSequences());
     }
 
 }
