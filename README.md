@@ -11,6 +11,7 @@ Layout:
 
 ### Dependencies
 * Maven
+* Jsoup
 
 ### Install
 

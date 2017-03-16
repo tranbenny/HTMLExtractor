@@ -5,9 +5,10 @@ public class Client {
 
     public static void main(String[] args) {
         String url1 = "http://www.google.com";
-        URLValidator urlValidator = new URLValidator(url1);
-        boolean results = urlValidator.validateUrl();
-        System.out.println(results);
+
+        HTMLDocument htmlObject = new HTMLDocument(url1);
+//        System.out.println(htmlObject.getTitle());
+        htmlObject.printAllTags();
     }
 
 }
