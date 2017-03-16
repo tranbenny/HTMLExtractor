@@ -5,6 +5,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 /**
@@ -17,13 +20,15 @@ public class HTMLDocument {
     private ArrayList<String> links;
     private ArrayList<String> htmlTags;
     private ArrayList<String> sequences;
+    private ArrayList<String> resultSequences;
 
 
     public HTMLDocument(String url) {
         this.url = url;
-        this.links = new ArrayList<String>();
-        this.htmlTags = new ArrayList<String>();
-        this.sequences = new ArrayList<String>();
+        this.links = new ArrayList<>();
+        this.htmlTags = new ArrayList<>();
+        this.sequences = new ArrayList<>();
+        this.resultSequences = new ArrayList<>();
         this.setup();
         this.getRawHTMLTags();
         this.findSequences();
@@ -77,7 +82,17 @@ public class HTMLDocument {
     }
 
     public ArrayList<String> getSequences() {
-        return this.sequences;
+        return this.resultSequences;
+    }
+
+    public void compareSequences() {
+        int index = 0;
+        IntStream.range(0, this.sequences.size()).forEach(x -> {
+            System.out.println("ORIGINAL");
+            System.out.println(this.sequences.get(x));
+            System.out.println("RESULT");
+            System.out.println(this.resultSequences.get(x));
+        });
     }
 
     /**
@@ -105,13 +120,71 @@ public class HTMLDocument {
 
     }
 
+    // TODO: Iterating through each element tag like this has repeats. Needs to skip these
     private void findSequences() {
         // search through all text combinations inside html document
         Elements elements = this.doc.select("*");
         for (Element elem : elements) {
             String text = elem.text();
             this.sequences.add(text);
+            ArrayList<String> validSequences = isValidSequence(text);
+            this.resultSequences.addAll(validSequences);
         }
+//        this.resultSequences = this.sequences.stream().map((x) -> {
+//            return isValidSequence(x);
+//        }).collect(Collectors.toCollection(ArrayList::new));
+
+
+    }
+
+    /**
+     * Sequence Criteria: Two or more words that have the first letter in each word capitalized. Word is defined as sequence
+     *  of characters greater than 2 seperated by whitespace
+     * @param text: input String text value
+     * @return String value for valid sequence, otherwise returns empty string
+     */
+    private ArrayList<String> isValidSequence(String text) {
+        String[] fullWords = text.split(" ");
+        if (fullWords.length < 2) {
+            return new ArrayList<String>();
+        }
+        ArrayList<Character> words = Arrays.asList(text.split(" ")).stream().map(x -> {
+            return x.charAt(0);
+        }).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<String> results = new ArrayList<String>();
+        StringBuilder result = new StringBuilder();
+        int index = 0;
+        while (index < words.size()) {
+            if (words.get(index) == Character.toUpperCase(words.get(index))) {
+                result.append(fullWords[index] + " ");
+            } else {
+                if (result.toString().split(" ").length >= 2) {
+                    results.add(result.toString().trim());
+                }
+                result.setLength(0);
+            }
+            index++;
+        }
+        return results;
+
+
+//        String result = "";
+//        for (int i = 0; i < words.length; i++) {
+//            if (words[i].charAt(0) == Character.toUpperCase(words[i].charAt(0)) && words[i + 1].charAt(0) == Character.toUpperCase(words[i + 1].charAt(0))) {
+//                // valid start
+//                if (words.length - 1 - i > 2) {
+//                    result = result + (words[i]);
+//                    result = result + (words[i + 1]);
+//                    int next = i + 2;
+//                    while (next < words.length && words[next].charAt(0) == Character.toUpperCase(words[next].charAt(0))) {
+//                        result = result + (words[next]);
+//                    }
+//                }
+//            }
+//        }
+//        return result;
+
+
     }
 
 
