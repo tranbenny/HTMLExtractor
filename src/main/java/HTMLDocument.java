@@ -1,11 +1,14 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -17,6 +20,7 @@ public class HTMLDocument {
 
     private String url;
     private Document doc;
+    private Element root;
     private ArrayList<String> links;
     private ArrayList<String> htmlTags;
     private ArrayList<String> sequences;
@@ -35,6 +39,26 @@ public class HTMLDocument {
 //        this.fetchLinks();
     }
 
+    public HTMLDocument(File file) {
+        try {
+            this.doc = Jsoup.parse(file, "UTF-8", "");
+            this.root = this.doc.select("html").get(0);
+            this.links = new ArrayList<>();
+            this.htmlTags = new ArrayList<>();
+            this.sequences = new ArrayList<>();
+            this.resultSequences = new ArrayList<>();
+            // this.setup();
+        } catch (IOException e) {
+            // TODO: handle error
+            e.printStackTrace();
+        }
+    }
+
+    // TODO: add common constructor initialization here
+    private HTMLDocument() {
+
+    }
+
     public String getTitle() {
         return this.doc.title();
     }
@@ -43,6 +67,9 @@ public class HTMLDocument {
         // this.getHTMLDocument();
         try {
             this.doc = Jsoup.connect(this.url).get();
+            // TODO: this should always be 0, need to handle the invalid document test case
+            // TODO: handle invalid requests
+            this.root = this.doc.select("html").get(0);
         } catch (IOException e) {
             // TODO: Log to file
             e.printStackTrace();
@@ -168,24 +195,34 @@ public class HTMLDocument {
         return results;
 
 
-//        String result = "";
-//        for (int i = 0; i < words.length; i++) {
-//            if (words[i].charAt(0) == Character.toUpperCase(words[i].charAt(0)) && words[i + 1].charAt(0) == Character.toUpperCase(words[i + 1].charAt(0))) {
-//                // valid start
-//                if (words.length - 1 - i > 2) {
-//                    result = result + (words[i]);
-//                    result = result + (words[i + 1]);
-//                    int next = i + 2;
-//                    while (next < words.length && words[next].charAt(0) == Character.toUpperCase(words[next].charAt(0))) {
-//                        result = result + (words[next]);
-//                    }
-//                }
-//            }
-//        }
-//        return result;
-
-
     }
+
+    public void printAllNodes() {
+        this.printAllNodes(this.root);
+    }
+
+    // ISSUE: prints opening head and body twice
+    private void printAllNodes(Element currentNode) {
+        Elements children = currentNode.children();
+        System.out.println("<" + currentNode.nodeName() + ">");
+        if (children.size() == 0) {
+            System.out.println("</" + currentNode.nodeName() + ">");
+        } else {
+            // issue here: causes tags to be printed twice
+            for (Element child: children) {
+                // System.out.println("<" + child.nodeName() + ">");
+                printAllNodes(child);
+            }
+            System.out.println("</" + currentNode.nodeName() + ">");
+        }
+    }
+
+
+
+
+
+
+
 
 
 

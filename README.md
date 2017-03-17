@@ -16,3 +16,8 @@ Layout:
 ### Install
 
 ### Running
+
+TODO
+* generate all links
+* generate html structure
+* generate sequences
