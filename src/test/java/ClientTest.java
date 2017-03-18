@@ -10,7 +10,7 @@ public class ClientTest {
     private Client client;
 
     @BeforeClass
-    public void setUp() {
+    public static void setUp() {
 
     }
 

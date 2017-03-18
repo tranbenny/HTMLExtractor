@@ -47,10 +47,12 @@ public class HTMLDocument {
             // TODO: this should always be 0, need to handle the invalid document test case
             // TODO: handle invalid requests
             this.root = this.doc.select("html").get(0);
+            this.traverseHTMLDocument(this.root);
         } catch (IOException e) {
             // TODO: Log to file
             log.error(getStackTrace(e));
         }
+
 
     }
 
@@ -60,6 +62,7 @@ public class HTMLDocument {
         try {
             this.doc = Jsoup.parse(file, "UTF-8", "");
             this.root = this.doc.select("html").get(0);
+            this.traverseHTMLDocument(this.root);
             // this.setup();
         } catch (IOException e) {
             // TODO: handle error
@@ -105,8 +108,8 @@ public class HTMLDocument {
         Elements children = currentNode.children();
         this.tags.add("<" + currentNode.nodeName() + ">");
         addLink(currentNode);
-        addContent(currentNode);
         if (children.size() == 0) {
+            addContent(currentNode);
             this.tags.add("</" + currentNode.nodeName() + ">");
         } else {
             for (Element child: children) {
@@ -126,8 +129,13 @@ public class HTMLDocument {
 
     private void addContent(Element node) {
         String text = node.text();
-        // TODO: add sequence validation here
-        this.sequences.add(text);
+        // run sequence validation
+         ArrayList<String> validSequences = SequenceValidator.isValid(text);
+        if (validSequences.size() > 0) {
+            this.sequences.addAll(validSequences);
+        }
+//        this.sequences.add(text);
+
     }
 
 
