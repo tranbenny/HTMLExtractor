@@ -1,3 +1,5 @@
+package com.bennytran;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -10,8 +12,8 @@ public class Client {
         String url1 = "http://www.google.com";
         String url2 = "https://pitchbook.com/about-pitchbook";
 
-        HTMLDocument htmlObject = new HTMLDocument(url2);
-        // HTMLDocument htmlObject = new HTMLDocument(new File("/Users/bennytran/Documents/Projects/PitchBook/InterviewProject/src/main/resources/HTMLTestFiles/Test1.html"));
+         HTMLDocument htmlObject = new HTMLDocument(url2);
+         // com.bennytran.HTMLDocument htmlObject = new com.bennytran.HTMLDocument(new File("/Users/bennytran/Documents/Projects/PitchBook/InterviewProject/src/main/resources/HTMLTestFiles/Test1.html"));
 //        System.out.println(htmlObject.getTitle());
 //        htmlObject.printAllTags();
 //        System.out.println(htmlObject.getLinks());
@@ -21,5 +23,5 @@ public class Client {
 //        htmlObject.compareSequences();
         htmlObject.printAllNodes();
     }
-
 }
+

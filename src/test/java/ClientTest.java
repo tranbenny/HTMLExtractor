@@ -1,3 +1,4 @@
+import com.bennytran.Client;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

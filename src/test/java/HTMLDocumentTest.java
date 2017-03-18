@@ -7,11 +7,11 @@ public class HTMLDocumentTest {
 
     @Test
     public void testHTMLTagContent() {
-        // every tag should have a closing tag
+        // TODO: every tag should have a closing tag
     }
 
     @Test
-    public void testSequences() {
+    public void testHTMLSequence() {
         
     }
 
@@ -20,16 +20,15 @@ public class HTMLDocumentTest {
 
     }
 
-    @Test
-    public void testFindsOnlyValidLinks() {
 
-    }
-
-
-    // TODO: genereate a bunch of random html documents, get their order and test my object
     @Test
     public void testHTMLOrder() {
+        // TODO: genereate a bunch of random html documents, get their order and test my object
+    }
 
+    @Test
+    public void testHasNoRootElement() {
+        // TODO: make sure tag elements doesn't contain '#root'
     }
 
 

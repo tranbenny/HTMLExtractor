@@ -1,14 +1,13 @@
+package com.bennytran;
+
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
+import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,6 +25,8 @@ public class HTMLDocument {
     private ArrayList<String> sequences;
     private ArrayList<String> resultSequences;
 
+    private ArrayList<Attribute> attributes;
+
 
     public HTMLDocument(String url) {
         this.url = url;
@@ -36,6 +37,7 @@ public class HTMLDocument {
         this.setup();
         this.getRawHTMLTags();
         this.findSequences();
+        this.attributes = new ArrayList<>();
 //        this.fetchLinks();
     }
 
@@ -198,23 +200,38 @@ public class HTMLDocument {
     }
 
     public void printAllNodes() {
-        this.printAllNodes(this.root);
+        this.traverseHTMLDocument(this.root);
+//        System.out.println(this.attributes.size());
+//        System.out.println(this.htmlTags);
+        System.out.println(this.sequences);
     }
 
-    // ISSUE: prints opening head and body twice
-    private void printAllNodes(Element currentNode) {
+    // TODO: make sure there is not #root tag
+    private void traverseHTMLDocument(Element currentNode) {
         Elements children = currentNode.children();
-        System.out.println("<" + currentNode.nodeName() + ">");
+        this.htmlTags.add("<" + currentNode.nodeName() + ">");
+        addLink(currentNode);
+        addContent(currentNode);
         if (children.size() == 0) {
-            System.out.println("</" + currentNode.nodeName() + ">");
+            this.htmlTags.add("</" + currentNode.nodeName() + ">");
         } else {
-            // issue here: causes tags to be printed twice
             for (Element child: children) {
-                // System.out.println("<" + child.nodeName() + ">");
-                printAllNodes(child);
+                traverseHTMLDocument(child);
             }
-            System.out.println("</" + currentNode.nodeName() + ">");
+            this.htmlTags.add("</" + currentNode.nodeName() + ">");
         }
+    }
+
+    private void addLink(Element node) {
+        Attributes attr = node.attributes();
+        // TODO: add a URL validation/check here
+        this.attributes.addAll(attr.asList());
+    }
+
+    private void addContent(Element node) {
+        String text = node.text();
+        // TODO: add sequence validation here
+        this.sequences.add(text);
     }
 
 
