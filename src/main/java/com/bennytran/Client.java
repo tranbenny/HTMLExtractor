@@ -18,7 +18,7 @@ public class Client {
 
         // HTMLDocument htmlDocument = new HTMLDocument(file);
         HTMLDocument htmlDocument1 = new HTMLDocument(url);
-        htmlDocument1.getHTMLString();
+        // htmlDocument1.getHTMLString();
 
     }
 }

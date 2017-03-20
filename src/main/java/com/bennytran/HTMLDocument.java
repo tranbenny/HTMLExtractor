@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class HTMLDocument {
 
     static Logger log = Logger.getLogger(HTMLDocument.class.getName());
+    private String firstOutputString;
 
     private String baseUri;
     private Document doc;
@@ -44,15 +45,34 @@ public class HTMLDocument {
         this.attributes = new ArrayList<>();
 
         // this.outputString = StringHelper.removeSpaces(htmlString);
+        this.firstOutputString = this.testFormat(htmlString);
         this.outputString = htmlString.replaceAll(" +", " ").replaceAll("\t", " ");
         this.doc = Jsoup.parse(htmlString);
         // TODO: HANDLE IF HTML SELECTOR IT NOT FOUND
         this.root = this.doc.select("html").get(0);
         this.traverseDoc(this.root);
+
+
+        this.formatOutput(this.firstOutputString);
         /**
          * this.root.outerHTML doesn't work b/c it auto corrects self-closing tags, and auto-cleans the tags
          */
     }
+
+    private String testFormat(String htmlString) {
+        // get only tag content
+        StringBuilder sb = new StringBuilder();
+        String[] tags = StringUtils.substringsBetween(htmlString, "<", ">");
+
+        for (int i = 0; i < tags.length; i++) {
+            // System.out.println(tags[i]);
+            sb.append("<" + tags[i] + ">");
+        }
+        String result = sb.toString().replaceAll(" +", "").replaceAll("\t", "");
+        return result;
+
+    }
+
 
 
     public HTMLDocument(String url) {
@@ -83,6 +103,20 @@ public class HTMLDocument {
         // return this.outputString;
     }
 
+    private void formatOutput(String text) {
+        String text2 = text.replaceAll(" +", "").replaceAll("\t", "");
+
+
+        String[] scriptString = StringUtils.substringsBetween(text2,"<script>", "</script>");
+        for (int i = 0; i < scriptString.length; i++) {
+            //System.out.println(scriptString[i]);
+            text2 = text2.replace(scriptString[i], "");
+        }
+
+        System.out.println(text2);
+
+    }
+
     private void formatOutput() {
 
         this.outputString = this.outputString.replaceAll(" +", "").replaceAll("\t", "");
@@ -103,19 +137,23 @@ public class HTMLDocument {
             this.outputString = this.outputString.replace("<!--" + scriptString[i] + "-->", "");
         }
 
+        String[] inbetweenText = StringUtils.substringsBetween(this.outputString, ">", "<");
+        for (int i = 0; i < inbetweenText.length; i++) {
+            // System.out.println(inbetweenText[i]);
+            this.outputString = this.outputString.replace(inbetweenText[i], "");
+        }
 
-        //System.out.println(this.outputString.replaceAll(" +", "").replaceAll("\t", ""));
 
 
-         System.out.println(this.outputString);
+
+        // System.out.println(this.outputString.replaceAll(" +", "").replaceAll("\t", ""));
+
+
 
 //        Elements scriptElements = this.doc.getElementsByTag("script");
 //        for (Element scriptBlock : scriptElements) {
 //            System.out.println(scriptBlock.outerHtml());
 //        }
-
-
-
 
     }
 
@@ -149,25 +187,28 @@ public class HTMLDocument {
         if (curr.hasText()) {
 //            System.out.println("NEW NODE");
 //            System.out.println(curr.ownText());
-            this.outputString = this.outputString.replace(">" + curr.ownText() + "<", "><");
+            this.sequences.add(curr.ownText());
+            // this.outputString = this.outputString.replace(">" + curr.ownText() + "<", "><");
         }
 
         // traverse document
         Elements children = curr.children();
         // remove all attributes here
         Attributes attrs = curr.attributes();
+        
         attrs.asList().stream().forEach(x -> {
             // TODO: refactor these combinations by removing all quotes. Then remove sequence
             String possibleCombination = x.getKey() + "=" + x.getValue(); // no quotes
             String singleQuoteCombination = x.getKey() + "='" + x.getValue() + "'"; // single quotes
-            this.outputString = this.outputString.replace(possibleCombination, "");
-            this.outputString = this.outputString.replace(singleQuoteCombination, "");
-            this.outputString = this.outputString.replace(x.toString(), "");
+            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(possibleCombination), "");
+            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(singleQuoteCombination), "");
+            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(x.toString()), "");
             this.attributes.add(x);
             if (LinkValidator.isValidLink(x.getValue())) {
                 this.links.add(x.getValue());
             }
         });
+
 
         if (children.size() == 0) {
             // TODO: grab all the text inside and add it to sequences
