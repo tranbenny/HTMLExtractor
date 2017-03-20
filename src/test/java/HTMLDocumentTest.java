@@ -1,7 +1,10 @@
 import org.junit.Test;
 
 /**
- * Created by bennytran on 3/16/17.
+ * TEST CASES TO ADD:
+ * - HANDLE SPACES INSIDE ATTRIBUTES WITHIN THE HTML TAG
+ * - HANDLE LINKS INSIDE THE ATTRIBUTE AND TEXT CONTAINED IN HTML TAGS
+ * - HANDLE QUOTED AND UNQUOTED ATTRIBUTES
  */
 public class HTMLDocumentTest {
 
@@ -30,6 +33,7 @@ public class HTMLDocumentTest {
     public void testHasNoRootElement() {
         // TODO: make sure tag elements doesn't contain '#root'
     }
+
 
 
 
