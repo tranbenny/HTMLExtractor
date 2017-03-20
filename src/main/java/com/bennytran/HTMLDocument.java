@@ -46,6 +46,9 @@ public class HTMLDocument {
 
         // this.outputString = StringHelper.removeSpaces(htmlString);
         this.firstOutputString = this.testFormat(htmlString);
+        this.formatOutput(this.firstOutputString);
+
+
         this.outputString = htmlString.replaceAll(" +", " ").replaceAll("\t", " ");
         this.doc = Jsoup.parse(htmlString);
         // TODO: HANDLE IF HTML SELECTOR IT NOT FOUND
@@ -53,7 +56,7 @@ public class HTMLDocument {
         this.traverseDoc(this.root);
 
 
-        this.formatOutput(this.firstOutputString);
+        // this.formatOutput(this.firstOutputString);
         /**
          * this.root.outerHTML doesn't work b/c it auto corrects self-closing tags, and auto-cleans the tags
          */
@@ -65,10 +68,20 @@ public class HTMLDocument {
         String[] tags = StringUtils.substringsBetween(htmlString, "<", ">");
 
         for (int i = 0; i < tags.length; i++) {
-            // System.out.println(tags[i]);
-            sb.append("<" + tags[i] + ">");
+            // build tag only
+            String tag = tags[i];
+            int spaceIndex = tags[i].indexOf(' ');
+            if (spaceIndex != -1) {
+                // remove all attributes
+                tag = tag.substring(0, spaceIndex);
+            }
+            // handle self-closing tags
+            if (tags[i].endsWith("/")) {
+                tag = tag + "/";
+            }
+            sb.append("<" + tag + ">");
         }
-        String result = sb.toString().replaceAll(" +", "").replaceAll("\t", "");
+        String result = sb.toString().replaceAll(" +", " ").replaceAll("\t", " ");
         return result;
 
     }
@@ -106,11 +119,20 @@ public class HTMLDocument {
     private void formatOutput(String text) {
         String text2 = text.replaceAll(" +", "").replaceAll("\t", "");
 
-
+        // removes all script tag content
         String[] scriptString = StringUtils.substringsBetween(text2,"<script>", "</script>");
         for (int i = 0; i < scriptString.length; i++) {
             //System.out.println(scriptString[i]);
             text2 = text2.replace(scriptString[i], "");
+        }
+
+        // remove comments
+        // TODO: ISSUE: THERE IS A VALID HTML TAG INSIDE THIS COMMENT. FIGURE OUT HOW TO HANDLE
+        String[] comments = StringUtils.substringsBetween(text2, "<!--", "-->");
+        for (int i = 0; i < comments.length; i++) {
+            // System.out.println(comments[i]);
+            // TODO: IF COMMENT INCLUDES VALID LINK, SECOND PARAMETER IN REPLACE SHOULD BE THE TAGS 
+            text2 = text2.replace("<!--" + comments[i] + "-->", "");
         }
 
         System.out.println(text2);
@@ -195,14 +217,16 @@ public class HTMLDocument {
         Elements children = curr.children();
         // remove all attributes here
         Attributes attrs = curr.attributes();
-        
+        if (curr.nodeName() == "img") {
+            // System.out.println(attrs);
+        }
         attrs.asList().stream().forEach(x -> {
             // TODO: refactor these combinations by removing all quotes. Then remove sequence
             String possibleCombination = x.getKey() + "=" + x.getValue(); // no quotes
             String singleQuoteCombination = x.getKey() + "='" + x.getValue() + "'"; // single quotes
-            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(possibleCombination), "");
-            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(singleQuoteCombination), "");
-            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(x.toString()), "");
+//            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(possibleCombination), "");
+//            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(singleQuoteCombination), "");
+//            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(x.toString()), "");
             this.attributes.add(x);
             if (LinkValidator.isValidLink(x.getValue())) {
                 this.links.add(x.getValue());
