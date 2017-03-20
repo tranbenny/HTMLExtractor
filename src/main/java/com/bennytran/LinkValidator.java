@@ -13,7 +13,10 @@ import java.net.URL;
 public class LinkValidator {
 
     // TODO: add link verification here
+    // TODO: ADD ABSOLUTE LINK VERIFICATION
+    // TODO: ADD RELATIVE LINK VERIFICATION
     public static boolean isValidLink(String link) {
+        // System.out.println(link);
         return true;
     }
 
