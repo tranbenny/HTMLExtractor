@@ -3,12 +3,12 @@ package com.bennytran;
 import java.util.ArrayList;
 
 /**
- * Created by bennytran on 3/17/17.
+ *
  */
 public class SequenceValidator {
 
-    // TODO: add seqeunce validations here
-    // TODO: dealing with punctuation
+    // TODO: SEQUENCE VALIDATION
+    // TODO: NEED TO HANDLE SYMBOLS AND NUMBERS
     public static ArrayList<String> isValid(String inputText) {
         // remove all punctuation
         // String text = inputText.replaceAll("\\p{Punct}", "");

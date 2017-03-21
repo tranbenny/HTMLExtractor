@@ -23,13 +23,23 @@ public class LinkValidatorTest {
     @Test
     @Ignore
     public void testAllFoundLinksWork() {
+//        int urlTracker = 0;
         for (int i = 0; i < validLinks.length; i++) {
             HTMLDocument htmlDocument = new HTMLDocument(validLinks[i]);
             ArrayList<String> validLinks = htmlDocument.getLinks();
-            validLinks.stream().forEach(link -> {
+//            validLinks.stream().forEach(link -> {
+//                assertThat(GetHTMLService.getResponseCode(link), is(200));
+//
+//            });
+            for (String link : validLinks) {
                 assertThat(GetHTMLService.getResponseCode(link), is(200));
-            });
+//                urlTracker++;
+//                System.out.println(urlTracker + " links passed");
+            }
         }
     }
+
+    // TODO: ADD TEST TO HANDLE LINKS IN COMMENTS
+    // TODO: TEST IF IS WORKING FOR IF COMMENT INCLUDES VALID LINK, SECOND PARAMETER IN REPLACE SHOULD BE THE TAGS
 
 }

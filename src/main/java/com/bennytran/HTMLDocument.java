@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class HTMLDocument {
 
     static Logger log = Logger.getLogger(HTMLDocument.class.getName());
-    private String firstOutputString;
+    // private String firstOutputString;
 
     private String url;
     private String baseUri;
@@ -37,73 +37,33 @@ public class HTMLDocument {
 
     private String outputString;
 
-//    private LinkValidator linkValidator;
 
     private HTMLDocument(String htmlString, String url) {
         this.url = url;
+        this.baseUri = LinkValidator.getBaseUri(this.url);
         // TODO: HANDLE IF BASE URI IS NOT SPECIFIED
         this.links = new ArrayList<>();
         this.sequences = new ArrayList<>();
         this.attributes = new ArrayList<>();
 
-//        this.linkValidator = new LinkValidator(url);
-
-
-        // this.outputString = StringHelper.removeSpaces(htmlString);
-        this.firstOutputString = this.testFormat(htmlString);
-        this.formatOutput(this.firstOutputString);
-
-        this.baseUri = LinkValidator.getBaseUri(this.url);
-
-        this.outputString = htmlString.replaceAll(" +", " ").replaceAll("\t", " ");
         this.doc = Jsoup.parse(htmlString, this.baseUri);
-        // TODO: HANDLE IF HTML SELECTOR IT NOT FOUND
+
+        // TODO: HANDLE IF SCENARIO IF HTML SELECTOR IT NOT FOUND
+        // TODO: TRY CHANGING INVALID TO JUST SELECT CHILDREN INSTEAD OF AN HTML OBJECT
         this.root = this.doc.select("html").get(0);
         this.traverseDoc(this.root);
+
+        // find all valid links
         this.findAllValidLinks();
+        // create html output string
+        this.outputString = this.formatHTMLOutput(htmlString);
 
-
-        // this.formatOutput(this.firstOutputString);
-        /**
-         * this.root.outerHTML doesn't work b/c it auto corrects self-closing tags, and auto-cleans the tags
-         */
+        log.info("Finished building HTML Document object");
     }
-
-    private String testFormat(String htmlString) {
-        // get only tag content
-        // System.out.println(htmlString);
-        String[] sequences = StringUtils.substringsBetween(htmlString, ">", "<");
-
-        StringBuilder sb = new StringBuilder();
-        String[] tags = StringUtils.substringsBetween(htmlString, "<", ">");
-
-        for (int i = 0; i < tags.length; i++) {
-            // build tag only
-            String tag = tags[i];
-            int spaceIndex = tags[i].indexOf(' ');
-            if (spaceIndex != -1) {
-                // remove all attributes
-                tag = tag.substring(0, spaceIndex);
-            }
-            // handle self-closing tags
-            if (tags[i].endsWith("/")) {
-                tag = tag + "/";
-            }
-            sb.append("<" + tag + ">");
-        }
-        String result = sb.toString().replaceAll(" +", " ").replaceAll("\t", " ");
-
-
-
-        return result;
-
-    }
-
-
 
     public HTMLDocument(String url) {
         this(GetHTMLService.getFromURL(url), url);
-        log.info("Building HTML Document object for URL: " + url);
+        // log.info("Building HTML Document object for URL: " + url);
     }
 
     /**
@@ -112,9 +72,8 @@ public class HTMLDocument {
      */
     public HTMLDocument(File file) {
         this(GetHTMLService.getFromFile(file), "INSERT BASE URI HERE");
-        log.info("Building HTML Document object for File: " + file);
+        // log.info("Building HTML Document object for File: " + file);
     }
-
 
 
     public ArrayList<String> getLinks() {
@@ -123,33 +82,28 @@ public class HTMLDocument {
     public ArrayList<String> getSequences() {
         return this.sequences;
     }
-
     public ArrayList<Attribute> getAttributes() {
         return this.attributes;
     }
-
-    public String getHTMLString() {
-        this.formatOutput();
-        return StringHelper.removeSpaces(this.outputString);
-        // return this.outputString;
+    public String getOutputString() {
+        return this.outputString;
     }
 
-    private void formatOutput(String text) {
-        String text2 = text.replaceAll(" +", "").replaceAll("\t", "");
+    private String formatOutput(String text) {
+        String result = text.replaceAll(" +", "").replaceAll("\t", "");
 
-        // removes all script tag content
-        String[] scriptString = StringUtils.substringsBetween(text2,"<script>", "</script>");
+        // remove all script tag content
+        String[] scriptString = StringUtils.substringsBetween(result,"<script>", "</script>");
         for (int i = 0; i < scriptString.length; i++) {
-            //System.out.println(scriptString[i]);
-            text2 = text2.replace(scriptString[i], "");
+            result = result.replace(scriptString[i], "");
         }
 
-        // remove comments
+
         // TODO: ISSUE: THERE IS A VALID HTML TAG INSIDE THIS COMMENT. FIGURE OUT HOW TO HANDLE. ADD IT.
         // TODO: MAKE TESTS FOR THIS
-        String[] comments = StringUtils.substringsBetween(text2, "<!--", "-->");
+        // remove comments
+        String[] comments = StringUtils.substringsBetween(result, "<!--", "-->");
         for (int i = 0; i < comments.length; i++) {
-//            System.out.println(comments[i]);
             // find any tags inside comment
             String[] newTags = StringUtils.substringsBetween(comments[i], "<", ">");
             String newCommentTag = "";
@@ -158,91 +112,32 @@ public class HTMLDocument {
                     newCommentTag += "<" + newTags[j] + ">";
                 }
             }
-
-            // TODO: TEST IF IS WORKING FOR IF COMMENT INCLUDES VALID LINK, SECOND PARAMETER IN REPLACE SHOULD BE THE TAGS
-            text2 = text2.replace("<!--" + comments[i] + "-->", newCommentTag);
+            result = result.replace("<!--" + comments[i] + "-->", newCommentTag);
         }
 
-        // System.out.println(text2);
+        // insert newline after </head>element
+        int spaceIndex = result.indexOf("</head>");
+        StringBuilder resultSb = new StringBuilder();
+        resultSb.append(result.substring(0, spaceIndex));
+        resultSb.append("</head>\n");
+        resultSb.append(result.substring(spaceIndex + 7));
+
+        return resultSb.toString();
 
     }
 
-    private void formatOutput() {
-
-        this.outputString = this.outputString.replaceAll(" +", "").replaceAll("\t", "");
-        // remove script content
-        // TODO: add script content to search for links
-        String[] scriptString = StringUtils.substringsBetween(this.outputString,"<script>", "</script>");
-        for (int i = 0; i < scriptString.length; i++) {
-            //System.out.println(scriptString[i]);
-            this.outputString = this.outputString.replace(scriptString[i], "");
-        }
-
-        // did not work
-        String[] comments = StringUtils.substringsBetween(this.outputString, "<!--", "-->");
-        for (int i = 0; i < comments.length; i++) {
-            // System.out.println(comments[i]);
-            // TODO: ISSUE NEED TO ESCAPE QUOTES HERE
-//            <!--[ifltIE10]><linkhref="/css/ie.css?uq=rcvnUrNU"/><![endif]-->
-            this.outputString = this.outputString.replace("<!--" + scriptString[i] + "-->", "");
-        }
-
-        String[] inbetweenText = StringUtils.substringsBetween(this.outputString, ">", "<");
-        for (int i = 0; i < inbetweenText.length; i++) {
-            // System.out.println(inbetweenText[i]);
-            this.outputString = this.outputString.replace(inbetweenText[i], "");
-        }
-
-
-
-
-        // System.out.println(this.outputString.replaceAll(" +", "").replaceAll("\t", ""));
-
-
-
-//        Elements scriptElements = this.doc.getElementsByTag("script");
-//        for (Element scriptBlock : scriptElements) {
-//            System.out.println(scriptBlock.outerHtml());
-//        }
-
-    }
-
-
-    private void addLink(Element node) {
-        Attributes attr = node.attributes();
-        // TODO: add a URL validation/check here
-        this.links.addAll(attr.asList().stream().map(
-                x -> x.toString())
-                .collect(Collectors.toCollection(ArrayList::new)));
-    }
-
-    private void addContent(Element node) {
-        String text = node.ownText();
-        // run sequence validation
-         ArrayList<String> validSequences = SequenceValidator.isValid(text);
-        if (validSequences.size() > 0) {
-            this.sequences.addAll(validSequences);
-        }
-    }
 
     /**
-     * TODO: ISSUE: DOESN'T HANDLE REMOVING SCRIPT TAG CONTENT
+     * TODO: ISSUE: DOESN'T HANDLE SCRIPT TAG CONTENT
      * TODO: ISSUE: DOESN'T HANDLE SPECIAL CHARACTER SEQUENCES
-     * TODO: ISSUE: DOESN'T HANDLE COMMENTS
-     * TODO: ISSUE: DOESN'T HANDLE nested text inside elements with children
-     * @param curr
+     * TODO: ISSUE: DOESN'T HANDLE COMMENT CONTENT
+     * @param curr : Element object for where to start document traversal
      */
     private void traverseDoc(Element curr) {
 
         if (curr.ownText().trim().length() > 0) {
-//            this.sequences.add(curr.ownText().trim());
             ArrayList<String> validSequences = SequenceValidator.isValid(curr.ownText().trim());
             this.sequences.addAll(validSequences);
-//            if (validSequences.size() > 0) {
-//                System.out.println();
-//                System.out.println(curr.ownText().trim());
-//                System.out.println(validSequences);
-//            }
         }
 
         // traverse document
@@ -251,12 +146,6 @@ public class HTMLDocument {
         Attributes attrs = curr.attributes();
         attrs.asList().stream().forEach(x -> {
             this.attributes.add(x);
-//            if (this.linkValidator.isValidLink(x.getValue())) {
-////                System.out.println("VALID LINK");
-//                this.links.add(this.linkValidator.formatLink(x.getValue()));
-//            } else {
-////                System.out.println("INVALID LINK");
-//            }
         });
 
         if (children.size() > 0) {
@@ -274,6 +163,49 @@ public class HTMLDocument {
                 this.links.add(linkValidator.formatLink(attr.getValue()));
             }
         });
+    }
+
+    private String formatHTMLOutput(String htmlString) {
+        // get only tag content
+        // System.out.println(htmlString);
+        String[] sequences = StringUtils.substringsBetween(htmlString, ">", "<");
+
+        StringBuilder sb = new StringBuilder();
+        String[] tags = StringUtils.substringsBetween(htmlString, "<", ">");
+
+        for (int i = 0; i < tags.length; i++) {
+            // build tag only
+            String tag = tags[i];
+            // don't add doctype tag
+            if (!tag.toLowerCase().contains("doctype")) {
+                int spaceIndex = tags[i].indexOf(' ');
+                if (spaceIndex != -1) {
+                    // remove all attributes
+                    tag = tag.substring(0, spaceIndex);
+                }
+                // handle self-closing tags
+                if (tags[i].endsWith("/")) {
+                    tag = tag + "/";
+                }
+                sb.append("<" + tag + ">");
+            }
+        }
+        String result = sb.toString().replaceAll(" +", " ").replaceAll("\t", " ");
+
+        return this.formatOutput(result);
+
+    }
+
+
+    public void generateFile() {
+        System.out.println("[LINKS]");
+        this.links.stream().forEach(link -> System.out.println(link));
+        System.out.println();
+        System.out.println("[HTML]");
+        System.out.println(this.outputString);
+        System.out.println();
+        System.out.println("[sequences]");
+        this.sequences.stream().forEach(seq -> System.out.println(seq));
     }
 
 }
