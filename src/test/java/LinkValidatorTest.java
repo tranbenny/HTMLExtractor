@@ -1,24 +1,35 @@
+import com.bennytran.HTMLDocument;
+import com.bennytran.LinkValidator;
+import com.bennytran.helpers.GetHTMLService;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
+import java.util.ArrayList;
 
-
-import static com.bennytran.LinkValidator.isValidLink;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 /**
- * Created by bennytran on 3/15/17.
+ *
  */
 public class LinkValidatorTest {
 
+    private final String[] validLinks = new String[] {
+        "https://pitchbook.com/about-pitchbook"
+    };
+
+
+    // GOT HTTP REQUEST RESPONSE 999: ACCESS DENIED :(
     @Test
     @Ignore
-    public void testLinkValidator() {
-        String validURL = "";
-        String invalidURL = "";
-        assertTrue("Valid URL should return 200 http response", isValidLink(validURL));
-        assertFalse("Invalid url should return incorrect http response", isValidLink(invalidURL));
+    public void testAllFoundLinksWork() {
+        for (int i = 0; i < validLinks.length; i++) {
+            HTMLDocument htmlDocument = new HTMLDocument(validLinks[i]);
+            ArrayList<String> validLinks = htmlDocument.getLinks();
+            validLinks.stream().forEach(link -> {
+                assertThat(GetHTMLService.getResponseCode(link), is(200));
+            });
+        }
     }
 
 }

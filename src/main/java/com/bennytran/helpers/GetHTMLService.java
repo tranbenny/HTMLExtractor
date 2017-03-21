@@ -3,6 +3,7 @@ package com.bennytran.helpers;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -66,6 +67,34 @@ public class GetHTMLService {
             e.printStackTrace();
         }
         return response.toString();
+    }
+
+    /**
+     *
+     * @param urlString
+     * @return
+     */
+    public static int getResponseCode(String urlString) {
+        URL url = null;
+        try {
+            url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            int code = connection.getResponseCode();
+            return code;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            // TODO : HANDLE ERROR
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+            // TODO: HANDLE ERROR
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: HANDLE ERROR
+        }
+        return -1;
     }
 
 }

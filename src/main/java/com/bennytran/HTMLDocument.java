@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
+import sun.awt.image.ImageWatched;
 
 
 import java.io.*;
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 // string differences
 
 
-
 /**
  *
  */
@@ -26,6 +26,7 @@ public class HTMLDocument {
     static Logger log = Logger.getLogger(HTMLDocument.class.getName());
     private String firstOutputString;
 
+    private String url;
     private String baseUri;
     private Document doc;
     private Element root;
@@ -36,24 +37,30 @@ public class HTMLDocument {
 
     private String outputString;
 
+//    private LinkValidator linkValidator;
 
-    private HTMLDocument(String htmlString, String baseUri) {
-        this.baseUri = baseUri;
+    private HTMLDocument(String htmlString, String url) {
+        this.url = url;
         // TODO: HANDLE IF BASE URI IS NOT SPECIFIED
         this.links = new ArrayList<>();
         this.sequences = new ArrayList<>();
         this.attributes = new ArrayList<>();
 
+//        this.linkValidator = new LinkValidator(url);
+
+
         // this.outputString = StringHelper.removeSpaces(htmlString);
         this.firstOutputString = this.testFormat(htmlString);
         this.formatOutput(this.firstOutputString);
 
+        this.baseUri = LinkValidator.getBaseUri(this.url);
 
         this.outputString = htmlString.replaceAll(" +", " ").replaceAll("\t", " ");
-        this.doc = Jsoup.parse(htmlString);
+        this.doc = Jsoup.parse(htmlString, this.baseUri);
         // TODO: HANDLE IF HTML SELECTOR IT NOT FOUND
         this.root = this.doc.select("html").get(0);
         this.traverseDoc(this.root);
+        this.findAllValidLinks();
 
 
         // this.formatOutput(this.firstOutputString);
@@ -95,14 +102,19 @@ public class HTMLDocument {
 
 
     public HTMLDocument(String url) {
-        this(GetHTMLService.getFromURL(url), "INSERT BASE URI HERE");
+        this(GetHTMLService.getFromURL(url), url);
         log.info("Building HTML Document object for URL: " + url);
     }
 
+    /**
+     * CANNOT HAVE BASE URI UNLESS INSERTED
+     * @param file
+     */
     public HTMLDocument(File file) {
         this(GetHTMLService.getFromFile(file), "INSERT BASE URI HERE");
         log.info("Building HTML Document object for File: " + file);
     }
+
 
 
     public ArrayList<String> getLinks() {
@@ -151,7 +163,7 @@ public class HTMLDocument {
             text2 = text2.replace("<!--" + comments[i] + "-->", newCommentTag);
         }
 
-        System.out.println(text2);
+        // System.out.println(text2);
 
     }
 
@@ -239,14 +251,12 @@ public class HTMLDocument {
         Attributes attrs = curr.attributes();
         attrs.asList().stream().forEach(x -> {
             this.attributes.add(x);
-            System.out.println();
-            System.out.println(x.getValue());
-            if (LinkValidator.isValidLink(x.getValue())) {
-                System.out.println("VALID LINK");
-                this.links.add(x.getValue());
-            } else {
-                System.out.println("INVALID LINK");
-            }
+//            if (this.linkValidator.isValidLink(x.getValue())) {
+////                System.out.println("VALID LINK");
+//                this.links.add(this.linkValidator.formatLink(x.getValue()));
+//            } else {
+////                System.out.println("INVALID LINK");
+//            }
         });
 
         if (children.size() > 0) {
@@ -255,6 +265,15 @@ public class HTMLDocument {
             }
         }
 
+    }
+
+    private void findAllValidLinks() {
+        LinkValidator linkValidator = new LinkValidator(this.url);
+        this.attributes.stream().forEach(attr -> {
+            if (linkValidator.isValidLink(attr.getValue())) {
+                this.links.add(linkValidator.formatLink(attr.getValue()));
+            }
+        });
     }
 
 }
