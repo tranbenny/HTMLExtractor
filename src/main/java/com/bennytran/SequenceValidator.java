@@ -8,9 +8,11 @@ import java.util.ArrayList;
 public class SequenceValidator {
 
     // TODO: add seqeunce validations here
+    // TODO: dealing with punctuation
     public static ArrayList<String> isValid(String inputText) {
         // remove all punctuation
-        String text = inputText.replaceAll("\\p{Punct}", "");
+        // String text = inputText.replaceAll("\\p{Punct}", "");
+        String text = inputText;
         ArrayList<String> combinations = new ArrayList<String>();
 
         String[] words = text.split(" +");

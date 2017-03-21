@@ -7,17 +7,21 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+
+import org.apache.commons.validator.routines.UrlValidator;
+
 /**
  * Created by bennytran on 3/15/17.
  */
 public class LinkValidator {
 
-    // TODO: add link verification here
-    // TODO: ADD ABSOLUTE LINK VERIFICATION
+
+    // TODO: ADD ABSOLUTE LINK VERIFICATION, DONE
     // TODO: ADD RELATIVE LINK VERIFICATION
     public static boolean isValidLink(String link) {
         // System.out.println(link);
-        return true;
+        UrlValidator urlValidator = new UrlValidator();
+        return urlValidator.isValid(link);
     }
 
 }

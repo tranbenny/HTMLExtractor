@@ -64,6 +64,9 @@ public class HTMLDocument {
 
     private String testFormat(String htmlString) {
         // get only tag content
+        // System.out.println(htmlString);
+        String[] sequences = StringUtils.substringsBetween(htmlString, ">", "<");
+
         StringBuilder sb = new StringBuilder();
         String[] tags = StringUtils.substringsBetween(htmlString, "<", ">");
 
@@ -82,6 +85,9 @@ public class HTMLDocument {
             sb.append("<" + tag + ">");
         }
         String result = sb.toString().replaceAll(" +", " ").replaceAll("\t", " ");
+
+
+
         return result;
 
     }
@@ -127,12 +133,22 @@ public class HTMLDocument {
         }
 
         // remove comments
-        // TODO: ISSUE: THERE IS A VALID HTML TAG INSIDE THIS COMMENT. FIGURE OUT HOW TO HANDLE
+        // TODO: ISSUE: THERE IS A VALID HTML TAG INSIDE THIS COMMENT. FIGURE OUT HOW TO HANDLE. ADD IT.
+        // TODO: MAKE TESTS FOR THIS
         String[] comments = StringUtils.substringsBetween(text2, "<!--", "-->");
         for (int i = 0; i < comments.length; i++) {
-            // System.out.println(comments[i]);
-            // TODO: IF COMMENT INCLUDES VALID LINK, SECOND PARAMETER IN REPLACE SHOULD BE THE TAGS 
-            text2 = text2.replace("<!--" + comments[i] + "-->", "");
+//            System.out.println(comments[i]);
+            // find any tags inside comment
+            String[] newTags = StringUtils.substringsBetween(comments[i], "<", ">");
+            String newCommentTag = "";
+            for (int j = 0; j < newTags.length; j++) {
+                if (newTags[j].length() > 2 && Character.isLetter(newTags[j].charAt(1))) {
+                    newCommentTag += "<" + newTags[j] + ">";
+                }
+            }
+
+            // TODO: TEST IF IS WORKING FOR IF COMMENT INCLUDES VALID LINK, SECOND PARAMETER IN REPLACE SHOULD BE THE TAGS
+            text2 = text2.replace("<!--" + comments[i] + "-->", newCommentTag);
         }
 
         System.out.println(text2);
@@ -206,45 +222,34 @@ public class HTMLDocument {
      */
     private void traverseDoc(Element curr) {
 
-        if (curr.hasText()) {
-//            System.out.println("NEW NODE");
-//            System.out.println(curr.ownText());
-            this.sequences.add(curr.ownText());
-            // this.outputString = this.outputString.replace(">" + curr.ownText() + "<", "><");
+        if (curr.ownText().trim().length() > 0) {
+//            this.sequences.add(curr.ownText().trim());
+            ArrayList<String> validSequences = SequenceValidator.isValid(curr.ownText().trim());
+            this.sequences.addAll(validSequences);
+//            if (validSequences.size() > 0) {
+//                System.out.println();
+//                System.out.println(curr.ownText().trim());
+//                System.out.println(validSequences);
+//            }
         }
 
         // traverse document
         Elements children = curr.children();
-        // remove all attributes here
+        // add all attributes here
         Attributes attrs = curr.attributes();
-        if (curr.nodeName() == "img") {
-            // System.out.println(attrs);
-        }
         attrs.asList().stream().forEach(x -> {
-            // TODO: refactor these combinations by removing all quotes. Then remove sequence
-            String possibleCombination = x.getKey() + "=" + x.getValue(); // no quotes
-            String singleQuoteCombination = x.getKey() + "='" + x.getValue() + "'"; // single quotes
-//            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(possibleCombination), "");
-//            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(singleQuoteCombination), "");
-//            this.firstOutputString = this.firstOutputString.replace(StringHelper.removeSpaces(x.toString()), "");
             this.attributes.add(x);
+            System.out.println();
+            System.out.println(x.getValue());
             if (LinkValidator.isValidLink(x.getValue())) {
+                System.out.println("VALID LINK");
                 this.links.add(x.getValue());
+            } else {
+                System.out.println("INVALID LINK");
             }
         });
 
-
-        if (children.size() == 0) {
-            // TODO: grab all the text inside and add it to sequences
-            if (curr.hasText()) {
-                // System.out.println(curr.text());
-                addContent(curr);
-                this.sequences.add(curr.text());
-//                this.outputString = this.outputString.replace(curr.text(), "");
-            }
-            curr.text("");
-            // curr.html("");
-        } else {
+        if (children.size() > 0) {
             for (Element child : children) {
                 this.traverseDoc(child);
             }

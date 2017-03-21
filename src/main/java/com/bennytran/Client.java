@@ -1,6 +1,8 @@
 package com.bennytran;
 
 import org.apache.log4j.Logger;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
 
 import javax.swing.text.html.HTML;
 import java.io.File;
@@ -18,6 +20,11 @@ public class Client {
 
         // HTMLDocument htmlDocument = new HTMLDocument(file);
         HTMLDocument htmlDocument1 = new HTMLDocument(url);
+        ArrayList<String> sequences = htmlDocument1.getSequences();
+        ArrayList<String> attrs = htmlDocument1.getLinks();
+        for (int i = 0; i < attrs.size(); i++) {
+            System.out.println(attrs.get(i));
+        }
         // htmlDocument1.getHTMLString();
 
     }
