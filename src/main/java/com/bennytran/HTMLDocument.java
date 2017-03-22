@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
-import sun.awt.image.ImageWatched;
+
 
 
 import java.io.*;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class HTMLDocument {
 
-    static Logger log = Logger.getLogger(HTMLDocument.class.getName());
+    // static Logger log = Logger.getLogger(HTMLDocument.class.getName());
     // private String firstOutputString;
 
     private String url;
@@ -58,7 +58,7 @@ public class HTMLDocument {
         // create html output string
         this.outputString = this.formatHTMLOutput(htmlString);
 
-        log.info("Finished building HTML Document object");
+//        log.info("Finished building HTML Document object");
     }
 
     public HTMLDocument(String url) {

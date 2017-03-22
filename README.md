@@ -22,6 +22,7 @@ TODO
 * type up assumptions
 * setting different properties file
 * test test test
+* need to set up proper maven build
 
 Assumptions:
 * Link is defined by a valid URL with HTTP or HTTPS protocol
