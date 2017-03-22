@@ -12,11 +12,15 @@ public class SequenceValidator {
     // TODO: NEED TO TEST HOW IT REMOVES THE PUNCTUATION
     public static ArrayList<String> isValid(String inputText) {
         // remove all punctuation
+//        System.out.println(inputText);
         String text = inputText.replaceAll("\\p{Punct}", "");
-//        String text = inputText;
+        text = text.replaceAll("\u00A0", " ");
+//        System.out.println(text);
+
         ArrayList<String> combinations = new ArrayList<String>();
 
-        String[] words = text.split(" +");
+        String[] words = text.split("\\s+");
+//        printArray(words);
 
         if (words.length >= 2) {
             String currCombination = "";
@@ -39,6 +43,17 @@ public class SequenceValidator {
 
 
         return combinations;
+    }
+
+    private static void printArray(String[] words) {
+        StringBuilder array = new StringBuilder();
+        array.append("[");
+        for (String word : words) {
+            array.append(word + ", ");
+        }
+        array.append("]");
+        System.out.println(array.toString());
+        System.out.println();
     }
 
 

@@ -4,8 +4,10 @@ import org.junit.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.hamcrest.CoreMatchers.is;
+
 /**
- * Created by bennytran on 3/18/17.
+ *
  */
 public class SequenceValidatorTest {
 
@@ -60,6 +62,15 @@ public class SequenceValidatorTest {
         seqCounts.keySet().stream().forEach(key -> {
                 Assert.assertSame("Duplicate value found for: " + key, seqCounts.get(key), 1);
         });
+    }
+
+    @Test
+    public void testNoPunctuation() {
+        // remove all punctuation
+        for (String seq : sequences) {
+            String removedPunc = seq.replaceAll("\\p{P}", "");
+            Assert.assertThat(seq, is(removedPunc));
+        }
     }
 
 
