@@ -15,8 +15,9 @@ public class FileBuilder {
 
     static Logger log = Logger.getLogger(FileBuilder.class.getName());
     private String fileName;
+//    private HTMLDocument
 
-    public FileBuilder(String fileName) {
+    public FileBuilder(String fileName, HTMLDocument htmlDocument) {
         this.fileName = fileName;
     }
 
@@ -36,9 +37,16 @@ public class FileBuilder {
         } catch (IOException e) {
             log.error(getStackTrace(e));
         }
-
     }
 
-    public void generateFile() {}
+    public void generateFile() {
+        try {
+            FileWriter fileWriter = new FileWriter(this.fileName);
+            fileWriter.write("[LINKS]");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }

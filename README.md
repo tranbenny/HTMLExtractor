@@ -20,8 +20,8 @@ Layout:
 
 TODO
 * type up assumptions
-* generate a file feature
 * setting different properties file
+* test test test
 
 Assumptions:
 * Link is defined by a valid URL with HTTP or HTTPS protocol

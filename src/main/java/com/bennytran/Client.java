@@ -16,7 +16,7 @@ public class Client {
     public static void main(String[] args) {
         String url = "https://pitchbook.com/about-pitchbook";
         HTMLDocument htmlDocument = new HTMLDocument(url);
-        htmlDocument.generateFile();
+        htmlDocument.generateFile("sample.txt");
 
     }
 }

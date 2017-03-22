@@ -208,4 +208,27 @@ public class HTMLDocument {
         this.sequences.stream().forEach(seq -> System.out.println(seq));
     }
 
+
+    public boolean generateFile(String fileName) {
+        try {
+            FileWriter fileWriter = new FileWriter(fileName);
+            fileWriter.write("[LINKS]\n");
+            for (String link : this.links) {
+                fileWriter.write(link + "\n");
+            }
+            fileWriter.write("\n");
+            fileWriter.write("[HTML]\n");
+            fileWriter.write(this.outputString + "\n");
+            fileWriter.write("\n");
+            fileWriter.write("[sequences]\n");
+            for (String seq : this.sequences) {
+                fileWriter.write(seq + "\n");
+            }
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
