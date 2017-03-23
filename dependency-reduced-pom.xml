@@ -28,6 +28,14 @@
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.3</version>
+        <configuration>
+          <artifactSet>
+            <excludes>
+              <exclude>junit:junit</exclude>
+              <exclude>org.apache.maven:lib:tests</exclude>
+            </excludes>
+          </artifactSet>
+        </configuration>
       </plugin>
     </plugins>
   </build>

@@ -1,26 +1,20 @@
 import com.bennytran.Client;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- * Created by bennytran on 3/15/17.
- */
+import java.io.File;
+
+
 public class ClientTest {
 
-    private Client client;
 
-    @BeforeClass
-    public static void setUp() {
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testDoesNotRunWithInvalidArgs() {
+        String[] args = new String[3];
+        Client.main(args);
     }
-
-    @Test
-    @Ignore
-    public void testMainMakesCorrectOutput() {
-        String[] arguments = new String[2];
-        Client.main(arguments);
-    }
-
 
 }
