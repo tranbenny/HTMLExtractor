@@ -8,8 +8,6 @@ import java.util.ArrayList;
 public interface HTMLDocumentInterface {
 
 
-
-
     public ArrayList<String> getLinks();
     public ArrayList<String> getSequences();
     public String getOutputString();

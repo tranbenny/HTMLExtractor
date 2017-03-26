@@ -13,9 +13,9 @@ import java.util.Properties;
 
 import static com.bennytran.helpers.GetHTMLService.getFromFile;
 import static com.bennytran.helpers.GetHTMLService.getFromURL;
-import static com.bennytran.helpers.LinkValidator.getBaseUri;
-import com.bennytran.helpers.LinkValidator;
+
 import com.bennytran.helpers.SequenceValidator;
+
 
 
 /**
@@ -36,6 +36,8 @@ public class HTMLDocument implements HTMLDocumentInterface {
     private ArrayList<Attribute> attributes = new ArrayList<>();
     private String outputString;
 
+    private LinkValidator linkValidator;
+
 
     /**
      *
@@ -53,7 +55,7 @@ public class HTMLDocument implements HTMLDocumentInterface {
     public HTMLDocument(File file) {
         this.setup(getFromFile(file));
     }
-    
+
     /**
      *
      * @param htmlString
@@ -64,7 +66,8 @@ public class HTMLDocument implements HTMLDocumentInterface {
         this.attributes.clear();
 
         if (this.url != null) {
-            this.baseUri = getBaseUri(this.url);
+            this.linkValidator = new LinkValidator(this.url);
+            this.baseUri = linkValidator.getBaseUri();
         }
 
         this.doc = Jsoup.parse(htmlString, baseUri);
@@ -84,8 +87,7 @@ public class HTMLDocument implements HTMLDocumentInterface {
      */
     public boolean setUrl(String url) {
         this.url = url;
-        // if invalid, return false
-        this.baseUri = getBaseUri(url);
+        this.linkValidator = new LinkValidator(this.url);
         this.setup(getFromURL(url));
         return true;
     }
@@ -97,9 +99,6 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
     public ArrayList<String> getSequences() {
         return this.sequences;
-    }
-    public ArrayList<Attribute> getAttributes() {
-        return this.attributes;
     }
     public String getOutputString() {
         return this.outputString;
@@ -125,16 +124,18 @@ public class HTMLDocument implements HTMLDocumentInterface {
         // TODO: MAKE TESTS FOR THIS
         // remove comments
         String[] comments = StringUtils.substringsBetween(result, "<!--", "-->");
-        for (int i = 0; i < comments.length; i++) {
-            // find any tags inside comment
-            String[] newTags = StringUtils.substringsBetween(comments[i], "<", ">");
-            String newCommentTag = "";
-            for (int j = 0; j < newTags.length; j++) {
-                if (newTags[j].length() > 2 && Character.isLetter(newTags[j].charAt(1))) {
-                    newCommentTag += "<" + newTags[j] + ">";
+        if (comments != null) {
+            for (int i = 0; i < comments.length; i++) {
+                // find any tags inside comment
+                String[] newTags = StringUtils.substringsBetween(comments[i], "<", ">");
+                String newCommentTag = "";
+                for (int j = 0; j < newTags.length; j++) {
+                    if (newTags[j].length() > 2 && Character.isLetter(newTags[j].charAt(1))) {
+                        newCommentTag += "<" + newTags[j] + ">";
+                    }
                 }
+                result = result.replace("<!--" + comments[i] + "-->", newCommentTag);
             }
-            result = result.replace("<!--" + comments[i] + "-->", newCommentTag);
         }
 
         // insert newline after </head>element
@@ -182,7 +183,7 @@ public class HTMLDocument implements HTMLDocumentInterface {
         LinkValidator linkValidator = new LinkValidator(this.url);
         this.attributes.stream().forEach(attr -> {
             if (linkValidator.isValidLink(attr.getValue())) {
-                this.links.add(linkValidator.formatLink(attr.getValue()));
+                this.links.add(linkValidator.formatRelativeLink(attr.getValue()));
             }
         });
     }

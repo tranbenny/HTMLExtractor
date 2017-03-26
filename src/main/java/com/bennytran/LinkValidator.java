@@ -1,79 +1,91 @@
 package com.bennytran;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 
 import org.apache.commons.validator.routines.UrlValidator;
-import sun.awt.image.ImageWatched;
 
 /**
- * Created by bennytran on 3/15/17.
+ *
  */
-public class LinkValidator extends UrlValidator{
+public class LinkValidator extends UrlValidator implements LinkValidatorInterface{
 
     private String url;
     private String baseUri;
 
-    private boolean enableRelativeLink;
-
-    private LinkValidator(String url, String baseUri, boolean enableRelativeLink) {
-        this.url = url;
-        this.baseUri = (isValidLink(url) && isValidLink(baseUri)) ? baseUri : "";
-
-        this.enableRelativeLink = enableRelativeLink;
-
-    }
-
-    // TODO: HANDLE SCENARIO FOR WHEN PASSED URL IS INVALID
+    /**
+     *
+     * @param url
+     */
     public LinkValidator(String url) {
-        this(url, getBaseUri(url), true);
+        this.setUrl(url);
     }
 
-    public LinkValidator() {
-        this("", "", false);
+    /**
+     *
+     * @return
+     */
+    public String getUrl() {
+        if (this.url != null) {
+            return this.url;
+        } else {
+            return "";
+        }
     }
 
-    public static String getBaseUri(String urlString) {
-        URL url = null;
+    /**
+     *
+     * @param url
+     */
+    public void setUrl(String url) {
+        if (!this.isValidLink(url)) {
+            try {
+                throw new MalformedURLException("Invalid url entered");
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            this.url = url;
+            this.baseUri = getBaseUri();
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getBaseUri() {
         try {
-            url = new URL(urlString);
+            URL url = new URL(this.url);
+            String base = url.getProtocol() + "://" + url.getHost();
+            return base;
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            // TODO: handle logging here
+        } catch (StringIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            // TODO: add logging here
         }
-        String path = url.getFile().substring(0, url.getFile().lastIndexOf('/'));
-        String base = url.getProtocol() + "://" + url.getHost();
-//        System.out.println(path);
-//        System.out.println(base);
-        return base;
+        return "";
+
     }
 
-
-
-    // TODO: ADD ABSOLUTE LINK VERIFICATION, DONE
-    // TODO: ADD RELATIVE LINK VERIFICATION
-    // TODO: HANDLE DOUBLE SLASHES: WHICH SHOULD BE THE EQUIVALENT OF HTTP OR HTTPS
+    /**
+     *
+     * @param linkText
+     * @return
+     */
     public boolean isValidLink(String linkText) {
-        // check absolute link: http, https, ftp, //
-//        System.out.println();
-//        System.out.println(linkText);
         String link = linkText.trim();
-//        System.out.println(link);
-//        System.out.println(link.startsWith("/"));
-        if (link.startsWith("http://") || link.startsWith("https://") || link.startsWith("ftp://") || link.startsWith("//")) {
-//            System.out.println("CHECKING ABSOLUTE LINK");
+        // check links that indicate the protocol
+        if (link.startsWith("http://") || link.startsWith("https://") || link.startsWith("//")) {
             return super.isValid(link);
-        } else if (this.enableRelativeLink && link.startsWith("/")) {
-//            System.out.println("CHECKING RELATIVE LINK");
-            // check relative link
-//            System.out.println(this.baseUri + link);
+        } else if (link.startsWith("/")) { // relative links
             return super.isValid(this.baseUri + link);
+        } else { // any other possible links
+            return (super.isValid("http://" + link) || super.isValid("https://" + link));
         }
-        return false;
     }
 
     /**
@@ -81,17 +93,22 @@ public class LinkValidator extends UrlValidator{
      * @param value
      * @return
      */
-    public String formatLink(String value) {
+    public String formatRelativeLink(String value) {
         StringBuilder urlBuilder = new StringBuilder();
         // absolute link
-        if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("ftp://") || value.startsWith("//")) {
+        if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("//")) {
             return value;
-        } else if (this.baseUri != "" && this.enableRelativeLink) {
+        } else if (this.baseUri != null) {
             // create absolute link from relative link
             urlBuilder.append(this.baseUri);
             urlBuilder.append(value);
         }
-        return urlBuilder.toString();
+
+        if (this.isValidLink(urlBuilder.toString())) {
+            return urlBuilder.toString();
+        } else {
+            return "";
+        }
     }
 
 
