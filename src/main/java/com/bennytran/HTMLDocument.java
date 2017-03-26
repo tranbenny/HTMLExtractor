@@ -1,22 +1,21 @@
 package com.bennytran;
 
-import com.bennytran.helpers.GetHTMLService;
-import com.bennytran.helpers.StringHelper;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
 
-
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 
-// string differences
+import static com.bennytran.helpers.GetHTMLService.getFromFile;
+import static com.bennytran.helpers.GetHTMLService.getFromURL;
+import static com.bennytran.helpers.LinkValidator.getBaseUri;
+import com.bennytran.helpers.LinkValidator;
+import com.bennytran.helpers.SequenceValidator;
 
 
 /**
@@ -31,56 +30,68 @@ public class HTMLDocument implements HTMLDocumentInterface {
     private String url;
     private String baseUri;
     private Document doc;
-    private Element root;
 
-    private ArrayList<String> links;
-    private ArrayList<String> sequences;
-    private ArrayList<Attribute> attributes;
+    private ArrayList<String> links = new ArrayList<>();
+    private ArrayList<String> sequences = new ArrayList<>();
+    private ArrayList<Attribute> attributes = new ArrayList<>();
     private String outputString;
 
-    // settings for formatting output
 
-
-
-    private HTMLDocument(String htmlString, String url) {
-        this.url = url;
-        this.baseUri = LinkValidator.getBaseUri(this.url);
-        // TODO: HANDLE IF BASE URI IS NOT SPECIFIED
-        this.links = new ArrayList<>();
-        this.sequences = new ArrayList<>();
-        this.attributes = new ArrayList<>();
-        this.loadProperties();
-
-        this.doc = Jsoup.parse(htmlString, this.baseUri);
-
-        // TODO: HANDLE IF SCENARIO IF HTML SELECTOR IT NOT FOUND
-        // TODO: TRY CHANGING INVALID TO JUST SELECT CHILDREN INSTEAD OF AN HTML OBJECT
-        this.root = this.doc.select("html").get(0);
-        this.traverseDoc(this.root);
-
-        // find all valid links
-        this.findAllValidLinks();
-        // create html output string
-        this.outputString = this.formatHTMLOutput(htmlString);
-
-//        log.info("Finished building HTML Document object");
-    }
-
+    /**
+     *
+     * @param url
+     */
     public HTMLDocument(String url) {
-        this(GetHTMLService.getFromURL(url), url);
-        // log.info("Building HTML Document object for URL: " + url);
+        this.url = url;
+        this.setup(getFromURL(url));
     }
 
     /**
-     * CANNOT HAVE BASE URI UNLESS INSERTED
+     * TODO: REMOVE. USED FOR TESTING PURPOSES
      * @param file
      */
     public HTMLDocument(File file) {
-        this(GetHTMLService.getFromFile(file), "INSERT BASE URI HERE");
-        // log.info("Building HTML Document object for File: " + file);
+        this.setup(getFromFile(file));
+    }
+    
+    /**
+     *
+     * @param htmlString
+     */
+    private void setup(String htmlString) {
+        this.links.clear();
+        this.sequences.clear();
+        this.attributes.clear();
+
+        if (this.url != null) {
+            this.baseUri = getBaseUri(this.url);
+        }
+
+        this.doc = Jsoup.parse(htmlString, baseUri);
+        // TODO: HANDLE IF SCENARIO IF HTML SELECTOR IT NOT FOUND
+        // TODO: TRY CHANGING INVALID TO JUST SELECT CHILDREN INSTEAD OF AN HTML OBJECT
+        Element root = this.doc.select("html").get(0);
+        this.traverseDoc(root);
+        this.findAllValidLinks();
+        this.outputString = this.formatHTMLOutput(htmlString);
+    }
+
+    // PUBLIC METHODS
+
+    /**
+     * @param url
+     * @return
+     */
+    public boolean setUrl(String url) {
+        this.url = url;
+        // if invalid, return false
+        this.baseUri = getBaseUri(url);
+        this.setup(getFromURL(url));
+        return true;
     }
 
 
+    public String getUrl() { return this.url; }
     public ArrayList<String> getLinks() {
         return this.links;
     }
@@ -93,10 +104,11 @@ public class HTMLDocument implements HTMLDocumentInterface {
     public String getOutputString() {
         return this.outputString;
     }
-    public boolean setUrl(String url) {
-        this.url = url;
-        return true;
-    }
+
+
+    /*
+    PRIVATE METHODS
+     */
 
 
     private String formatOutput(String text) {
@@ -206,17 +218,19 @@ public class HTMLDocument implements HTMLDocumentInterface {
 
     }
 
-
-//    private void generateFile() {
-//        System.out.println("[LINKS]");
-//        this.links.stream().forEach(link -> System.out.println(link));
-//        System.out.println();
-//        System.out.println("[HTML]");
-//        System.out.println(this.outputString);
-//        System.out.println();
-//        System.out.println("[sequences]");
-//        this.sequences.stream().forEach(seq -> System.out.println(seq));
-//    }
+    /**
+     * TODO: DELETE THIS METHOD LATER
+     */
+    public void printValues() {
+        System.out.println("LINKS");
+        this.links.stream().forEach(x -> System.out.println(x));
+        System.out.println();
+        System.out.println("HTML");
+        System.out.println(this.outputString);
+        System.out.println();
+        System.out.println("SEQUENCES");
+        this.sequences.stream().forEach(x -> System.out.println(x));
+    }
 
 
     public boolean generateFile(String fileName) {

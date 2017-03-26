@@ -1,4 +1,9 @@
+import com.bennytran.HTMLDocument;
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * TEST CASES TO ADD:
@@ -8,34 +13,22 @@ import org.junit.Test;
  */
 public class HTMLDocumentTest {
 
+    private final String url = "https://pitchbook.com/about-pitchbook";
+    private final String url2 = "https://www.google.com";
+
+    @Before
+    public void setup() {}
+
     @Test
-    public void testHTMLTagContent() {
-        // TODO: every tag should have a closing tag
+    public void testCreatingNewHTMLDocumentObjectsWithUrl() {
+        HTMLDocument htmlDocument = new HTMLDocument(url);
+        assertThat("Get url should match url that was passed as param", htmlDocument.getUrl(), is(url));
+        htmlDocument.setUrl(url2);
+        assertThat("set url should match new url that was set", htmlDocument.getUrl(), is(url));
     }
 
     @Test
-    public void testHTMLSequence() {
-        
-    }
-
-    @Test
-    public void testFindsAllLinks() {
-
-    }
-
-
-    @Test
-    public void testHTMLOrder() {
-        // TODO: genereate a bunch of random html documents, get their order and test my object
-    }
-
-    @Test
-    public void testHasNoRootElement() {
-        // TODO: make sure tag elements doesn't contain '#root'
-    }
-
-
-
+    public void testCreateNewHTMLDocumentObjectWithFile() {}
 
 
 
