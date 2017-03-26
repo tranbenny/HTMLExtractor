@@ -10,9 +10,8 @@ Layout:
 * Find Sequences 
 
 ### Dependencies
-* Maven
-* Jsoup
-* apache-commons
+* jsoup
+* apache-commons library 
 
 ### Build
 mvn package

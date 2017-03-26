@@ -15,9 +15,6 @@ import java.util.Properties;
 import static com.bennytran.helpers.GetHTMLService.getFromFile;
 import static com.bennytran.helpers.GetHTMLService.getFromURL;
 
-import com.bennytran.helpers.SequenceValidator;
-
-
 
 /**
  *
@@ -168,7 +165,7 @@ public class HTMLDocument implements HTMLDocumentInterface {
     private void traverseDoc(Element curr) {
 
         if (curr.ownText().trim().length() > 0) {
-            ArrayList<String> validSequences = SequenceValidator.isValid(curr.ownText().trim());
+            ArrayList<String> validSequences = SequenceValidator.getValidSequences(curr.ownText().trim());
             this.sequences.addAll(validSequences);
         }
 

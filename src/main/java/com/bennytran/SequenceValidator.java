@@ -7,27 +7,22 @@ import java.util.ArrayList;
  */
 public class SequenceValidator {
 
-    // TODO: SEQUENCE VALIDATION
-    // TODO: NEED TO HANDLE SYMBOLS AND NUMBERS
-    // TODO: NEED TO TEST HOW IT REMOVES THE PUNCTUATION
-    public static ArrayList<String> isValid(String inputText) {
+    /**
+     * 
+     * @param inputText
+     * @return
+     */
+    public static ArrayList<String> getValidSequences(String inputText) {
         // remove all punctuation
-//        System.out.println(inputText);
-        String text = inputText.replaceAll("\\p{Punct}", "");
-        text = text.replaceAll("\u00A0", " ");
-//        System.out.println(text);
-
+        String text = removePunc(inputText);
         ArrayList<String> combinations = new ArrayList<String>();
 
         String[] words = text.split("\\s+");
-//        printArray(words);
-
         if (words.length >= 2) {
             String currCombination = "";
             for (int i = 0; i < words.length; i++) {
                 // check if word is capitalized
-                if (words[i].charAt(0) == Character.toUpperCase(words[i].charAt(0))
-                        && words[i].length() > 2) {
+                if (words[i].length() > 2 && words[i].charAt(0) == Character.toUpperCase(words[i].charAt(0))) {
                     currCombination = currCombination + words[i] + " ";
                 } else {
                     if (currCombination.trim().split(" ").length >= 2) {
@@ -41,19 +36,47 @@ public class SequenceValidator {
             }
         }
 
-
         return combinations;
     }
 
-    private static void printArray(String[] words) {
-        StringBuilder array = new StringBuilder();
-        array.append("[");
-        for (String word : words) {
-            array.append(word + ", ");
-        }
-        array.append("]");
-        System.out.println(array.toString());
+
+    /**
+     * @param text
+     * @return
+     */
+    private static String removePunc(String text) {
+        // handle no break spaces
+        String result = text;
+        System.out.println(result);
+        // replace non-break space characters
+        result = result.replaceAll("\u00A0", " ");
+        // handle ampersand characters
+        result  = handleAmpersand(result);
+        // remove all characters that are not numbers or letters
+        result = result.replaceAll("[^0-9a-zA-Z\\s+]", "");
+        System.out.println(result);
         System.out.println();
+        return result;
+    }
+
+    /**
+     *
+     * @param text
+     * @return
+     */
+    private static String handleAmpersand(String text) {
+        int index = text.indexOf("\u0026");
+        if (index != -1 && index > 0 && index < text.length() - 1) {
+            // check for spaces on both sides
+            String result = text;
+            if (text.charAt(index - 1) == ' ' && text.charAt(index + 1) == ' ') {
+                result = text.replace("\u0026", "");
+            } else {
+                result = text.replace("\u0026", "");
+            }
+            return result;
+        }
+        return text;
     }
 
 
