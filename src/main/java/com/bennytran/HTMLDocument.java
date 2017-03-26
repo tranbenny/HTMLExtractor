@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 
@@ -21,10 +22,11 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class HTMLDocument {
+public class HTMLDocument implements HTMLDocumentInterface {
 
     // static Logger log = Logger.getLogger(HTMLDocument.class.getName());
-    // private String firstOutputString;
+
+    private static final String propertyFile = "/app.properties";
 
     private String url;
     private String baseUri;
@@ -34,8 +36,10 @@ public class HTMLDocument {
     private ArrayList<String> links;
     private ArrayList<String> sequences;
     private ArrayList<Attribute> attributes;
-
     private String outputString;
+
+    // settings for formatting output
+
 
 
     private HTMLDocument(String htmlString, String url) {
@@ -45,6 +49,7 @@ public class HTMLDocument {
         this.links = new ArrayList<>();
         this.sequences = new ArrayList<>();
         this.attributes = new ArrayList<>();
+        this.loadProperties();
 
         this.doc = Jsoup.parse(htmlString, this.baseUri);
 
@@ -88,6 +93,11 @@ public class HTMLDocument {
     public String getOutputString() {
         return this.outputString;
     }
+    public boolean setUrl(String url) {
+        this.url = url;
+        return true;
+    }
+
 
     private String formatOutput(String text) {
         String result = text.replaceAll(" +", "").replaceAll("\t", "");
@@ -197,16 +207,16 @@ public class HTMLDocument {
     }
 
 
-    public void generateFile() {
-        System.out.println("[LINKS]");
-        this.links.stream().forEach(link -> System.out.println(link));
-        System.out.println();
-        System.out.println("[HTML]");
-        System.out.println(this.outputString);
-        System.out.println();
-        System.out.println("[sequences]");
-        this.sequences.stream().forEach(seq -> System.out.println(seq));
-    }
+//    private void generateFile() {
+//        System.out.println("[LINKS]");
+//        this.links.stream().forEach(link -> System.out.println(link));
+//        System.out.println();
+//        System.out.println("[HTML]");
+//        System.out.println(this.outputString);
+//        System.out.println();
+//        System.out.println("[sequences]");
+//        this.sequences.stream().forEach(seq -> System.out.println(seq));
+//    }
 
 
     public boolean generateFile(String fileName) {
@@ -230,5 +240,16 @@ public class HTMLDocument {
             return false;
         }
         return true;
+    }
+
+    private void loadProperties() {
+        Properties prop = new Properties();
+        InputStream is = this.getClass().getResourceAsStream(propertyFile);
+        try {
+            prop.load(is);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
