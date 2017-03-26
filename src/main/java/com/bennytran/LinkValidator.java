@@ -18,7 +18,7 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
      *
      * @param url
      */
-    public LinkValidator(String url) {
+    public LinkValidator(String url) throws MalformedURLException {
         this.setUrl(url);
     }
 
@@ -38,13 +38,9 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
      *
      * @param url
      */
-    public void setUrl(String url) {
+    public void setUrl(String url) throws MalformedURLException {
         if (!this.isValidLink(url)) {
-            try {
-                throw new MalformedURLException("Invalid url entered");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+            throw new MalformedURLException("Invalid url entered");
         } else {
             this.url = url;
             this.baseUri = getBaseUri();
@@ -57,6 +53,9 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
      */
     public String getBaseUri() {
         try {
+            if (!containsProtocol(this.url)) {
+                this.url = "http://" + this.url;
+            }
             URL url = new URL(this.url);
             String base = url.getProtocol() + "://" + url.getHost();
             return base;
@@ -79,7 +78,7 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
     public boolean isValidLink(String linkText) {
         String link = linkText.trim();
         // check links that indicate the protocol
-        if (link.startsWith("http://") || link.startsWith("https://") || link.startsWith("//")) {
+        if (containsProtocol(link)) {
             return super.isValid(link);
         } else if (link.startsWith("/")) { // relative links
             return super.isValid(this.baseUri + link);
@@ -95,8 +94,7 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
      */
     public String formatRelativeLink(String value) {
         StringBuilder urlBuilder = new StringBuilder();
-        // absolute link
-        if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("//")) {
+        if (this.containsProtocol(value)) {
             return value;
         } else if (this.baseUri != null) {
             // create absolute link from relative link
@@ -109,6 +107,10 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
         } else {
             return "";
         }
+    }
+
+    private boolean containsProtocol(String url) {
+        return url.startsWith("http://") || url.startsWith("https://") || url.startsWith("//");
     }
 
 

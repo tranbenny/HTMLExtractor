@@ -2,6 +2,8 @@ import com.bennytran.HTMLDocument;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.MalformedURLException;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -20,11 +22,11 @@ public class HTMLDocumentTest {
     public void setup() {}
 
     @Test
-    public void testCreatingNewHTMLDocumentObjectsWithUrl() {
+    public void testCreatingNewHTMLDocumentObjectsWithUrl() throws MalformedURLException {
         HTMLDocument htmlDocument = new HTMLDocument(url);
         assertThat("Get url should match url that was passed as param", htmlDocument.getUrl(), is(url));
         htmlDocument.setUrl(url2);
-        assertThat("set url should match new url that was set", htmlDocument.getUrl(), is(url));
+        assertThat("set url should match new url that was set", htmlDocument.getUrl(), is(url2));
     }
 
     @Test

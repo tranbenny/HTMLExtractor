@@ -1,5 +1,7 @@
 package com.bennytran;
 
+import java.net.MalformedURLException;
+
 /**
  *
  */
@@ -9,7 +11,7 @@ public interface LinkValidatorInterface {
     public String getBaseUri();
     public String formatRelativeLink(String path);
 
-    public void setUrl(String url);
+    public void setUrl(String url) throws MalformedURLException;
     public String getUrl();
 
 }

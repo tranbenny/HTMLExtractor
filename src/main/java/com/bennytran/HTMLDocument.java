@@ -7,6 +7,7 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -45,7 +46,11 @@ public class HTMLDocument implements HTMLDocumentInterface {
      */
     public HTMLDocument(String url) {
         this.url = url;
-        this.setup(getFromURL(url));
+        try {
+            this.setup(getFromURL(url));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -53,14 +58,18 @@ public class HTMLDocument implements HTMLDocumentInterface {
      * @param file
      */
     public HTMLDocument(File file) {
-        this.setup(getFromFile(file));
+        try {
+            this.setup(getFromFile(file));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      *
      * @param htmlString
      */
-    private void setup(String htmlString) {
+    private void setup(String htmlString) throws MalformedURLException {
         this.links.clear();
         this.sequences.clear();
         this.attributes.clear();
@@ -85,7 +94,7 @@ public class HTMLDocument implements HTMLDocumentInterface {
      * @param url
      * @return
      */
-    public boolean setUrl(String url) {
+    public boolean setUrl(String url) throws MalformedURLException {
         this.url = url;
         this.linkValidator = new LinkValidator(this.url);
         this.setup(getFromURL(url));
@@ -180,12 +189,17 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
 
     private void findAllValidLinks() {
-        LinkValidator linkValidator = new LinkValidator(this.url);
-        this.attributes.stream().forEach(attr -> {
-            if (linkValidator.isValidLink(attr.getValue())) {
-                this.links.add(linkValidator.formatRelativeLink(attr.getValue()));
-            }
-        });
+        LinkValidator linkValidator = null;
+        try {
+            linkValidator = new LinkValidator(this.url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+//        this.attributes.stream().forEach(attr -> {
+//            if (linkValidator.isValidLink(attr.getValue())) {
+//                this.links.add(linkValidator.formatRelativeLink(attr.getValue()));
+//            }
+//        });
     }
 
     private String formatHTMLOutput(String htmlString) {

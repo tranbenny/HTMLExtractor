@@ -1,5 +1,6 @@
 package com.bennytran;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 /**
@@ -13,7 +14,7 @@ public interface HTMLDocumentInterface {
     public String getOutputString();
     public boolean generateFile(String filename);
 
-    public boolean setUrl(String url);
+    public boolean setUrl(String url) throws MalformedURLException;
     public String getUrl();
 
 
