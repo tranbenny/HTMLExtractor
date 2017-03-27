@@ -79,7 +79,7 @@ public class GetHTMLService {
         try {
             url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+            connection.setRequestMethod("HEAD");
             connection.connect();
 
             int code = connection.getResponseCode();
@@ -96,5 +96,7 @@ public class GetHTMLService {
         }
         return -1;
     }
+
+    // TODO: add a head request 
 
 }
