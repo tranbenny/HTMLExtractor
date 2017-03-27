@@ -118,6 +118,19 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
         return url.startsWith("http://") || url.startsWith("https://");
     }
 
+    /**
+     *
+     * @param url
+     * @return
+     */
+    public String createFullLink(String url) {
+        if (!containsProtocol(url)) {
+            return "http://" + url;
+        } else {
+            return url;
+        }
+    }
+
 
 
 }

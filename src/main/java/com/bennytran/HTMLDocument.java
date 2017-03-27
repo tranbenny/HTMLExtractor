@@ -23,7 +23,7 @@ public class HTMLDocument implements HTMLDocumentInterface {
 
     // static Logger log = Logger.getLogger(HTMLDocument.class.getName());
 
-    private static final String propertyFile = "/app.properties";
+    private final String propertyFile = "/app.properties";
 
     private String url;
     private String baseUri;
@@ -41,13 +41,11 @@ public class HTMLDocument implements HTMLDocumentInterface {
      *
      * @param url
      */
-    public HTMLDocument(String url) {
+    public HTMLDocument(String url) throws MalformedURLException {
+        linkValidator = new LinkValidator(url);
         this.url = url;
-        try {
-            this.setup(getFromURL(url));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        // add some validation/link fixing
+        this.setup(getFromURL(linkValidator.createFullLink(url)));
     }
 
     /**
@@ -77,9 +75,10 @@ public class HTMLDocument implements HTMLDocumentInterface {
         }
 
         this.doc = Jsoup.parse(htmlString, baseUri);
-        // TODO: HANDLE IF SCENARIO IF HTML SELECTOR IT NOT FOUND
-        // TODO: TRY CHANGING INVALID TO JUST SELECT CHILDREN INSTEAD OF AN HTML OBJECT
-        Element root = this.doc.select("html").get(0);
+        Element root = this.doc.child(0);
+        if (!root.nodeName().equals("html") || this.doc.children().size() > 1) {
+            throw new MalformedURLException("NonValid HTML Document Found");
+        }
         this.traverseDoc(root);
         this.findAllValidLinks();
         this.outputString = this.formatHTMLOutput(htmlString);
@@ -93,8 +92,8 @@ public class HTMLDocument implements HTMLDocumentInterface {
      */
     public boolean setUrl(String url) throws MalformedURLException {
         this.url = url;
-        this.linkValidator = new LinkValidator(this.url);
-        this.setup(getFromURL(url));
+        this.linkValidator.setUrl(this.url);
+        this.setup(getFromURL(linkValidator.createFullLink(url)));
         return true;
     }
 
@@ -111,11 +110,16 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
 
 
-    /*
-    PRIVATE METHODS
+/*===========================================================
+PRIVATE METHODS
+=============================================================*/
+
+
+    /**
+     *
+      * @param text
+     * @return
      */
-
-
     private String formatOutput(String text) {
         String result = text.replaceAll(" +", "").replaceAll("\t", "");
 
@@ -125,9 +129,6 @@ public class HTMLDocument implements HTMLDocumentInterface {
             result = result.replace(scriptString[i], "");
         }
 
-
-        // TODO: ISSUE: THERE IS A VALID HTML TAG INSIDE THIS COMMENT. FIGURE OUT HOW TO HANDLE. ADD IT.
-        // TODO: MAKE TESTS FOR THIS
         // remove comments
         String[] comments = StringUtils.substringsBetween(result, "<!--", "-->");
         if (comments != null) {
@@ -157,46 +158,50 @@ public class HTMLDocument implements HTMLDocumentInterface {
 
 
     /**
-     * TODO: ISSUE: DOESN'T HANDLE SCRIPT TAG CONTENT
-     * TODO: ISSUE: DOESN'T HANDLE SPECIAL CHARACTER SEQUENCES
-     * TODO: ISSUE: DOESN'T HANDLE COMMENT CONTENT
      * @param curr : Element object for where to start document traversal
      */
     private void traverseDoc(Element curr) {
+        if (curr != null) {
+            if (curr.ownText().trim().length() > 0) {
+                ArrayList<String> validSequences = SequenceValidator.getValidSequences(curr.ownText().trim());
+                this.sequences.addAll(validSequences);
+            }
 
-        if (curr.ownText().trim().length() > 0) {
-            ArrayList<String> validSequences = SequenceValidator.getValidSequences(curr.ownText().trim());
-            this.sequences.addAll(validSequences);
-        }
+            Elements children = curr.children();
+            Attributes attrs = curr.attributes();
+            attrs.asList().stream().forEach(x -> {
+                this.attributes.add(x);
+            });
 
-        // traverse document
-        Elements children = curr.children();
-        // add all attributes here
-        Attributes attrs = curr.attributes();
-        attrs.asList().stream().forEach(x -> {
-            this.attributes.add(x);
-        });
-
-        if (children.size() > 0) {
-            for (Element child : children) {
-                this.traverseDoc(child);
+            if (children.size() > 0) {
+                for (Element child : children) {
+                    this.traverseDoc(child);
+                }
             }
         }
 
     }
 
+    /**
+     *
+     */
     private void findAllValidLinks() {
         LinkValidator linkValidator = null;
         try {
             linkValidator = new LinkValidator(this.url);
+            for (Attribute attr : this.attributes) {
+                if (linkValidator.isValidLink(attr.getValue())) {
+                    this.links.add(linkValidator.formatRelativeLink(attr.getValue()));
+                }
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            // TODO: HANDLE ERROR LOGGING HERE
         }
-//        this.attributes.stream().forEach(attr -> {
-//            if (linkValidator.isValidLink(attr.getValue())) {
-//                this.links.add(linkValidator.formatRelativeLink(attr.getValue()));
-//            }
-//        });
+
+
+
+
     }
 
     private String formatHTMLOutput(String htmlString) {
@@ -234,13 +239,13 @@ public class HTMLDocument implements HTMLDocumentInterface {
      * TODO: DELETE THIS METHOD LATER
      */
     public void printValues() {
-        System.out.println("LINKS");
+        System.out.println("[LINKS]");
         this.links.stream().forEach(x -> System.out.println(x));
         System.out.println();
-        System.out.println("HTML");
+        System.out.println("[HTML]");
         System.out.println(this.outputString);
         System.out.println();
-        System.out.println("SEQUENCES");
+        System.out.println("[SEQUENCES]");
         this.sequences.stream().forEach(x -> System.out.println(x));
     }
 
