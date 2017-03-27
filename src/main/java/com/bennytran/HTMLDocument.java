@@ -52,8 +52,9 @@ public class HTMLDocument implements HTMLDocumentInterface {
      * TODO: REMOVE. USED FOR TESTING PURPOSES
      * @param file
      */
-    public HTMLDocument(File file) {
+    public HTMLDocument(File file, String baseURI) {
         try {
+            this.url = baseURI;
             this.setup(getFromFile(file));
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -149,12 +150,14 @@ PRIVATE METHODS
 
         // insert newline after </head>element
         int spaceIndex = result.indexOf("</head>");
-        StringBuilder resultSb = new StringBuilder();
-        resultSb.append(result.substring(0, spaceIndex));
-        resultSb.append("</head>\n");
-        resultSb.append(result.substring(spaceIndex + 7));
-
-        return resultSb.toString();
+        if (spaceIndex != -1) {
+            StringBuilder resultSb = new StringBuilder();
+            resultSb.append(result.substring(0, spaceIndex));
+            resultSb.append("</head>\n");
+            resultSb.append(result.substring(spaceIndex + 7));
+            return resultSb.toString();
+        }
+        return result;
 
     }
 
