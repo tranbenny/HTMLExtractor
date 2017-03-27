@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -118,6 +119,37 @@ public class HTMLDocumentTest {
         }
 
     }
+
+    @Test
+    public void testHTMLDocumentWorksWithAllURLTypes() {
+        String fullURL = "https://www.pitchbook.com";
+        String withoutProtocol = "pitchbook.com";
+        String halfURL = "www.pitchbook.com";
+        try {
+            HTMLDocument htmlDocument = new HTMLDocument(fullURL);
+            assertThat("url value should match with valid url", htmlDocument.getUrl(), is(fullURL));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            fail("object creation failed with valid full url: " + fullURL);
+        }
+        try {
+            HTMLDocument htmlDocument2 = new HTMLDocument(withoutProtocol);
+            assertThat("url value should match without protocol in url", htmlDocument2.getUrl(), is(withoutProtocol));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            fail("object creation failed with valid non protocol url: " + withoutProtocol);
+        }
+        try {
+            HTMLDocument htmlDocument3 = new HTMLDocument(halfURL);
+            assertThat("url value should match with partly complete valid url", htmlDocument3.getUrl(), is(halfURL));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            fail("object creation failed with valid partly formed url: " + halfURL);
+        }
+
+    }
+
+
 
     @After
     public void cleanup() {
