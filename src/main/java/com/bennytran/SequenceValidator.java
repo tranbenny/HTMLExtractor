@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class SequenceValidator {
 
     /**
-     * 
+     *
      * @param inputText
      * @return
      */
@@ -47,15 +47,12 @@ public class SequenceValidator {
     private static String removePunc(String text) {
         // handle no break spaces
         String result = text;
-        System.out.println(result);
         // replace non-break space characters
         result = result.replaceAll("\u00A0", " ");
         // handle ampersand characters
         result  = handleAmpersand(result);
         // remove all characters that are not numbers or letters
-        result = result.replaceAll("[^0-9a-zA-Z\\s+]", "");
-        System.out.println(result);
-        System.out.println();
+        result = result.replaceAll("[^0-9a-zA-Z\\s]", "");
         return result;
     }
 
