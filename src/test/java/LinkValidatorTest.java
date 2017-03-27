@@ -3,13 +3,14 @@ import com.bennytran.LinkValidator;
 import com.bennytran.helpers.GetHTMLService;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import sun.awt.image.ImageWatched;
+
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.*;
 
 /**
@@ -18,7 +19,11 @@ import static org.junit.Assert.*;
 public class LinkValidatorTest {
 
     private final String[] validLinks = new String[] {
-        "https://pitchbook.com/about-pitchbook"
+        "https://pitchbook.com/about-pitchbook",
+        "https://pitchbook.com/platform-data/deals",
+        "https://drive.google.com/drive/my-drive",
+        "pitchbook.com/about-pitchbook",
+        "www.mkyong.com/maven"
     };
 
     private final String[] validBaseLinks = new String[] {
@@ -29,12 +34,20 @@ public class LinkValidatorTest {
 
     @Test
     @Ignore
-    public void testAllFoundLinksWork() {
+    public void testAllFoundLinksWork() throws MalformedURLException, InterruptedException {
         for (int i = 0; i < validLinks.length; i++) {
             HTMLDocument htmlDocument = new HTMLDocument(validLinks[i]);
             ArrayList<String> validLinks = htmlDocument.getLinks();
             for (String link : validLinks) {
-                assertThat(GetHTMLService.getResponseCode(link), is(200));
+                int responseCode = GetHTMLService.getResponseCode(link);
+                if (responseCode == 999) {
+                    // wait 15 seconds before sending another request
+                    Thread.sleep(15000);
+                    // retry http head request
+                    responseCode = GetHTMLService.getResponseCode(link);
+
+                }
+                assertThat(responseCode, is(200));
             }
         }
     }
@@ -65,7 +78,8 @@ public class LinkValidatorTest {
             "dfklndlf",
             "ft://pitchbook.com",
             "hello",
-            "ftp://google.com"
+            "ftp://google.com",
+            "//pitchbook.com/about-pitchbook"
         };
         for (String url : invalidURLS) {
             LinkValidator linkValidator = new LinkValidator(url);
@@ -73,9 +87,18 @@ public class LinkValidatorTest {
     }
 
     @Test
-    public void testGrabsBaseUriFromNestedURLs() {
-        
+    public void testGrabsBaseUriFromNestedURLs() throws MalformedURLException {
+        for (String link : validLinks) {
+            LinkValidator linkValidator = new LinkValidator(link);
+            assertThat("Input URL should not match base URI", linkValidator.getBaseUri(), is(not(link)));
+            assertThat("Base URI is a valid url", linkValidator.isValidLink(linkValidator.getBaseUri()), is(true));
+
+            assertThat("Returned Base URI should have a protocol", linkValidator.getBaseUri().startsWith("http://") ||
+                linkValidator.getBaseUri().startsWith("https://"), is(true)
+            );
+        }
     }
+
 
 
 

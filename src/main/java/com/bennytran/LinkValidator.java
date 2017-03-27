@@ -109,8 +109,13 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
         }
     }
 
+    /**
+     *
+     * @param url
+     * @return
+     */
     private boolean containsProtocol(String url) {
-        return url.startsWith("http://") || url.startsWith("https://") || url.startsWith("//");
+        return url.startsWith("http://") || url.startsWith("https://");
     }
 
 
