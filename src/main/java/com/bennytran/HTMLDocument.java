@@ -9,7 +9,6 @@ import org.jsoup.select.Elements;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Properties;
 
 
 import static com.bennytran.helpers.GetHTMLService.getFromFile;
@@ -21,7 +20,6 @@ import static com.bennytran.helpers.GetHTMLService.getFromURL;
  */
 public class HTMLDocument implements HTMLDocumentInterface {
 
-    // static Logger log = Logger.getLogger(HTMLDocument.class.getName());
 
     private final String propertyFile = "/app.properties";
 
@@ -38,8 +36,8 @@ public class HTMLDocument implements HTMLDocumentInterface {
 
 
     /**
-     *
-     * @param url
+     * Creates object out of passed url string
+     * @param url: String
      */
     public HTMLDocument(String url) throws MalformedURLException {
         linkValidator = new LinkValidator(url);
@@ -49,7 +47,7 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
 
     /**
-     * TODO: REMOVE. USED FOR TESTING PURPOSES
+     * file input as parameter used for testing purposes
      * @param file
      */
     public HTMLDocument(File file, String baseURI) {
@@ -109,11 +107,6 @@ public class HTMLDocument implements HTMLDocumentInterface {
     public String getOutputString() {
         return this.outputString;
     }
-
-
-/*===========================================================
-PRIVATE METHODS
-=============================================================*/
 
 
     /**
@@ -201,7 +194,6 @@ PRIVATE METHODS
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            // TODO: HANDLE ERROR LOGGING HERE
         }
     }
 
@@ -242,20 +234,10 @@ PRIVATE METHODS
     }
 
     /**
-     * TODO: DELETE THIS METHOD LATER
+     *
+     * @param fileName
+     * @return
      */
-    public void printValues() {
-        System.out.println("[LINKS]");
-        this.links.stream().forEach(x -> System.out.println(x));
-        System.out.println();
-        System.out.println("[HTML]");
-        System.out.println(this.outputString);
-        System.out.println();
-        System.out.println("[SEQUENCES]");
-        this.sequences.stream().forEach(x -> System.out.println(x));
-    }
-
-
     public boolean generateFile(String fileName) {
         try {
             FileWriter fileWriter = new FileWriter(fileName);
@@ -277,16 +259,5 @@ PRIVATE METHODS
             return false;
         }
         return true;
-    }
-
-    private void loadProperties() {
-        Properties prop = new Properties();
-        InputStream is = this.getClass().getResourceAsStream(propertyFile);
-        try {
-            prop.load(is);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

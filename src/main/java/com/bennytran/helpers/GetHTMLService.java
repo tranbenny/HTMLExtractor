@@ -39,10 +39,8 @@ public class GetHTMLService {
             in.close();
 
         } catch (MalformedURLException e) {
-            // TODO: add error logging
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO: add error logging
             e.printStackTrace();
         }
         return response.toString();
@@ -63,7 +61,6 @@ public class GetHTMLService {
             }
 
         } catch (FileNotFoundException e) {
-            // TODO: ADD ERROR LOGGING
             e.printStackTrace();
         }
         return response.toString();
@@ -86,17 +83,12 @@ public class GetHTMLService {
             return code;
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            // TODO : HANDLE ERROR
         } catch (ProtocolException e) {
             e.printStackTrace();
-            // TODO: HANDLE ERROR
         } catch (IOException e) {
             e.printStackTrace();
-            // TODO: HANDLE ERROR
         }
         return -1;
     }
-
-    // TODO: add a head request 
 
 }

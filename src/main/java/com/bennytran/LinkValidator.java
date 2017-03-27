@@ -61,10 +61,8 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
             return base;
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            // TODO: handle logging here
         } catch (StringIndexOutOfBoundsException e) {
             e.printStackTrace();
-            // TODO: add logging here
         }
         return "";
 
