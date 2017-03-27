@@ -1,6 +1,5 @@
 import com.bennytran.HTMLDocument;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.parser.Parser;
 import org.junit.Before;
 import org.junit.Test;
 
