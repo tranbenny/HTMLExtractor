@@ -125,8 +125,10 @@ PRIVATE METHODS
 
         // remove all script tag content
         String[] scriptString = StringUtils.substringsBetween(result,"<script>", "</script>");
-        for (int i = 0; i < scriptString.length; i++) {
-            result = result.replace(scriptString[i], "");
+        if (scriptString != null) {
+            for (int i = 0; i < scriptString.length; i++) {
+                result = result.replace(scriptString[i], "");
+            }
         }
 
         // remove comments
@@ -198,12 +200,13 @@ PRIVATE METHODS
             e.printStackTrace();
             // TODO: HANDLE ERROR LOGGING HERE
         }
-
-
-
-
     }
 
+    /**
+     *
+     * @param htmlString
+     * @return
+     */
     private String formatHTMLOutput(String htmlString) {
         // get only tag content
         // System.out.println(htmlString);
@@ -253,7 +256,7 @@ PRIVATE METHODS
     public boolean generateFile(String fileName) {
         try {
             FileWriter fileWriter = new FileWriter(fileName);
-            fileWriter.write("[LINKS]\n");
+            fileWriter.write("[links]\n");
             for (String link : this.links) {
                 fileWriter.write(link + "\n");
             }

@@ -1,36 +1,132 @@
 import com.bennytran.HTMLDocument;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+
+import java.util.ArrayList;
+import java.util.Scanner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
- * TEST CASES TO ADD:
- * - HANDLE SPACES INSIDE ATTRIBUTES WITHIN THE HTML TAG
- * - HANDLE LINKS INSIDE THE ATTRIBUTE AND TEXT CONTAINED IN HTML TAGS
- * - HANDLE QUOTED AND UNQUOTED ATTRIBUTES
+ *
  */
 public class HTMLDocumentTest {
 
     private final String url = "https://pitchbook.com/about-pitchbook";
     private final String url2 = "https://www.google.com";
 
-    @Before
-    public void setup() {}
+    private HTMLDocument htmlDocument;
+    private File generatedFile;
+    private String fileName;
 
-    @Test
-    public void testCreatingNewHTMLDocumentObjectsWithUrl() throws MalformedURLException {
-        HTMLDocument htmlDocument = new HTMLDocument(url);
-        assertThat("Get url should match url that was passed as param", htmlDocument.getUrl(), is(url));
-        htmlDocument.setUrl(url2);
-        assertThat("set url should match new url that was set", htmlDocument.getUrl(), is(url2));
+    @Before
+    public void setup() throws MalformedURLException {
+        htmlDocument = new HTMLDocument(url);
+        this.fileName = "output.txt";
+        htmlDocument.generateFile(fileName);
+        String fullPath = System.getProperty("user.dir") + "/" + fileName;
+
+        generatedFile = new File(fullPath);
     }
 
     @Test
-    public void testCreateNewHTMLDocumentObjectWithFile() {}
+    public void testCreatingNewHTMLDocumentObjectsWithUrl() throws MalformedURLException {
+        assertThat("Get url should match url that was passed as param", htmlDocument.getUrl(), is(url));
+        htmlDocument.setUrl(url2);
+        assertThat("set url should match new url that was set", htmlDocument.getUrl(), is(url2));
+        htmlDocument.setUrl("amazon.com");
+        assertThat("passed url without protocol should still be the same", htmlDocument.getUrl(), is("amazon.com"));
+    }
+
+    @Test
+    public void testCreatingFile() {
+        assertThat("file should have been created", generatedFile.exists(), is(true));
+        String generatedFileName = this.generatedFile.getName();
+        assertThat("generated file name should match original file name", generatedFileName, is(fileName));
+    }
+
+    @Test
+    public void testFileContainsRequiredSections() {
+        ArrayList<String> tokens = new ArrayList<String>();
+        try {
+            Scanner fileScanner = new Scanner(generatedFile);
+            while (fileScanner.hasNextLine()) {
+                tokens.add(fileScanner.nextLine());
+            }
+            fileScanner.close();
+            assertThat("contains links section", tokens.contains("[links]"), is(true));
+            assertThat("contains html section", tokens.contains("[HTML]"), is(true));
+            assertThat("contains sequences section", tokens.contains("[sequences]"), is(true));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFileContentMatchesHTMLObjectContent() {
+        ArrayList<String> linksTokens = new ArrayList<>();
+        ArrayList<String> htmlTokens = new ArrayList<>();
+        ArrayList<String> sequenceTokens = new ArrayList<>();
+
+        try {
+            Scanner fileScanner = new Scanner(generatedFile);
+            String currSection = "";
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine().trim();
+                if (line.equals("[links]") || line.equals("[HTML]") || line.equals("[sequences]")) {
+                    currSection = line;
+                } else if (!line.equals("")) {
+                    switch(currSection) {
+                        case "[links]": linksTokens.add(line.trim());
+                            break;
+                        case "[HTML]": htmlTokens.add(line.trim());
+                            break;
+                        case "[sequences]": sequenceTokens.add(line.trim());
+                            break;
+                    }
+                }
+            }
+
+            fileScanner.close();
+
+            StringBuilder htmlString = new StringBuilder();
+            htmlTokens.stream().forEach(x -> htmlString.append(x));
+
+            ArrayList<String> links = htmlDocument.getLinks();
+            assertThat("generated links should match file links size", linksTokens.size(), is(links.size()));
+            for (int i = 0; i < links.size(); i++) {
+                assertThat("links should exactly match", linksTokens.get(i), is(links.get(i)));
+            }
+
+            ArrayList<String> sequences = htmlDocument.getSequences();
+            assertThat("generated sequence size should match sequence token size", sequenceTokens.size(), is(sequences.size()));
+            for (int i = 0; i < sequences.size(); i++) {
+                assertThat("sequences should exactly match", sequenceTokens.get(i), is(sequences.get(i)));
+            }
+
+            String docOutputString = htmlDocument.getOutputString().replaceAll("\\s+", "");
+            assertThat("html output without spaces should match", htmlString.toString(), is(docOutputString));
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @After
+    public void cleanup() {
+        this.generatedFile.delete();
+    }
+
+
+
+
 
 
 

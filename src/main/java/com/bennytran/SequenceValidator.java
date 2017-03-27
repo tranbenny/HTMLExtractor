@@ -26,13 +26,13 @@ public class SequenceValidator {
                     currCombination = currCombination + words[i] + " ";
                 } else {
                     if (currCombination.trim().split(" ").length >= 2) {
-                        combinations.add(currCombination);
+                        combinations.add(currCombination.trim());
                     }
                     currCombination = "";
                 }
             }
             if (currCombination.split(" ").length >= 2) {
-                combinations.add(currCombination);
+                combinations.add(currCombination.trim());
             }
         }
 
