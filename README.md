@@ -17,7 +17,7 @@ java -jar [jar-filename] [url] [output file name]
 
 
 
-#####Definition of Sequence:
+#### Definition of Sequence:
 * numbers are considered capitalized
 * punctuation to be removed = all characters that are not letters or numbers
 * sequence = two or more words that have the first letter of each letter capitalized
