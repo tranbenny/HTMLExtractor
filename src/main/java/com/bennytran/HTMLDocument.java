@@ -131,13 +131,15 @@ public class HTMLDocument implements HTMLDocumentInterface {
             for (int i = 0; i < comments.length; i++) {
                 // find any tags inside comment
                 String[] newTags = StringUtils.substringsBetween(comments[i], "<", ">");
-                String newCommentTag = "";
-                for (int j = 0; j < newTags.length; j++) {
-                    if (newTags[j].length() > 2 && Character.isLetter(newTags[j].charAt(1))) {
-                        newCommentTag += "<" + newTags[j] + ">";
+                if (newTags != null) {
+                    String newCommentTag = "";
+                    for (int j = 0; j < newTags.length; j++) {
+                        if (newTags[j].length() > 2 && Character.isLetter(newTags[j].charAt(1))) {
+                            newCommentTag += "<" + newTags[j] + ">";
+                        }
                     }
+                    result = result.replace("<!--" + comments[i] + "-->", newCommentTag);
                 }
-                result = result.replace("<!--" + comments[i] + "-->", newCommentTag);
             }
         }
 
