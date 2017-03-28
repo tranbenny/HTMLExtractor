@@ -8,17 +8,19 @@ import java.net.URL;
 import java.util.Scanner;
 
 /**
- * HTTP Service Class to retrieve html web page response as a String
+ * HTTP Service helper functions to retrieve html web page response as a String
+ *
  */
+
 public class GetHTMLService {
 
     /**
-     *
-     * @param url
-     * @return
+     * @throws MalformedURLException for invalid urls and
+     * @throws IOException if there is an error for writing from the input stream
+     * @param url String
+     * @return String value of response from get request to passed url
      */
     public static String getFromURL(String url) {
-        HttpURLConnection connection = null;
         StringBuffer response = new StringBuffer();
 
         try {
@@ -47,9 +49,9 @@ public class GetHTMLService {
     }
 
     /**
-     *
-     * @param file
-     * @return
+     * @throws FileNotFoundException if passed file cannot be found
+     * @param file variable for loading in text from individual files
+     * @return String value of file contents
      */
     public static String getFromFile(File file) {
         StringBuilder response = new StringBuilder();
@@ -67,9 +69,13 @@ public class GetHTMLService {
     }
 
     /**
-     *
-     * @param urlString
-     * @return
+     * creates a HEAD request to specified URL to test if link works
+     * @throws MalformedURLException for invalid URLs
+     * @throws ProtocolException for TCP errors
+     * @throws IOException for connection errors
+     * @param urlString string value for http request
+     * @return int value to indicate successful response, returns -1 for any errors in retrieving
+     *  a valid http status code
      */
     public static int getResponseCode(String urlString) {
         URL url = null;

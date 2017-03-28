@@ -4,6 +4,7 @@ page into passed file
 
 
 ### Dependencies
+* Java Version: Java 8
 * jsoup
 * apache-commons library 
 * apache log4j
@@ -23,3 +24,5 @@ java -jar [jar-filename] [url] [output file name]
 * word = characters of length greater than two seperated by white space
 
 
+##### Sample Built file:
+* HTMLExtract-jar-with-dependencies.jar

@@ -2,15 +2,17 @@ package com.bennytran;
 
 import java.util.ArrayList;
 
+
 /**
- *
+ * Helper class for validation sequences
+ * Sequence is defined as 2 or more words where each word is capitalized
+ * Sequences contain no punctuation and only numbers/letters
  */
 public class SequenceValidator {
 
     /**
-     *
-     * @param inputText
-     * @return
+     * @param inputText string value
+     * @return list of all found sequences in passed in string value
      */
     public static ArrayList<String> getValidSequences(String inputText) {
         // remove all punctuation
@@ -41,8 +43,9 @@ public class SequenceValidator {
 
 
     /**
+     * Handles non-break spaces and ampersands seperately
      * @param text
-     * @return
+     * @return same text value stripped of all content except numbers and letters
      */
     private static String removePunc(String text) {
         // handle no break spaces
@@ -57,9 +60,10 @@ public class SequenceValidator {
     }
 
     /**
-     *
+     * If ampersand is surrounded by a space at both sides, replaces ampersand with space
+     *  otherwise amerpsand is just stripped off with no space replacement
      * @param text
-     * @return
+     * @return text value stripped of ampersands
      */
     private static String handleAmpersand(String text) {
         int index = text.indexOf("\u0026");
@@ -75,7 +79,5 @@ public class SequenceValidator {
         }
         return text;
     }
-
-
 
 }

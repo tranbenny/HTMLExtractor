@@ -7,24 +7,24 @@ import java.net.URL;
 import org.apache.commons.validator.routines.UrlValidator;
 
 /**
- *
+ * Helper class for validating links and resolving relative links
+ * Inherits org.apache.commons.validator.routines.UrlValidator
  */
-public class LinkValidator extends UrlValidator implements LinkValidatorInterface{
+public class LinkValidator extends UrlValidator implements LinkValidatorInterface {
 
     private String url;
     private String baseUri;
 
     /**
-     *
-     * @param url
+     * @param url: String url for validation
+     * @throws MalformedURLException on invalid url values
      */
     public LinkValidator(String url) throws MalformedURLException {
         this.setUrl(url);
     }
 
     /**
-     *
-     * @return
+     * @return current set url, if blank, returns empty string
      */
     public String getUrl() {
         if (this.url != null) {
@@ -35,8 +35,9 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
     }
 
     /**
-     *
-     * @param url
+     * sets current url to passed input
+     * @param url : string value
+     * @throws MalformedURLException on invalid urls
      */
     public void setUrl(String url) throws MalformedURLException {
         if (!this.isValidLink(url)) {
@@ -49,7 +50,9 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
 
     /**
      *
-     * @return
+     * @return Base URI extracted from current url, otherwise empty string if exceptions are found
+     * MalformedURLException: on invalid urls
+     * StringIndexOutofBoundsException if base cannot be extracted from protocol and host methods
      */
     public String getBaseUri() {
         try {
@@ -69,9 +72,9 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
     }
 
     /**
-     *
-     * @param linkText
-     * @return
+     * Attempts to resolve link if protocol is not added
+     * @param linkText: passed in link
+     * @return boolean value on if link is valid
      */
     public boolean isValidLink(String linkText) {
         String link = linkText.trim();
@@ -86,9 +89,10 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
     }
 
     /**
-     * Format relative links into absolute links
-     * @param value
-     * @return
+     * Resolves relative links with set base URI value or returns full passed in valid link
+     *  Will return empty string if final formatted link is not valid
+     * @param value: link value
+     * @return String value of an absolute link based on currently set base URI value
      */
     public String formatRelativeLink(String value) {
         StringBuilder urlBuilder = new StringBuilder();
@@ -108,18 +112,16 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
     }
 
     /**
-     *
      * @param url
-     * @return
+     * @return boolean value on whether contains http,https protocol in its value
      */
     private boolean containsProtocol(String url) {
         return url.startsWith("http://") || url.startsWith("https://");
     }
 
     /**
-     *
-     * @param url
-     * @return
+     * @param url string value
+     * @return url value with http:// appended if it doesn't contain a protocol
      */
     public String createFullLink(String url) {
         if (!containsProtocol(url)) {
@@ -128,7 +130,5 @@ public class LinkValidator extends UrlValidator implements LinkValidatorInterfac
             return url;
         }
     }
-
-
-
+    
 }

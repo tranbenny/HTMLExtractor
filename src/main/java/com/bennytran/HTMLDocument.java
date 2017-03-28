@@ -16,12 +16,10 @@ import static com.bennytran.helpers.GetHTMLService.getFromURL;
 
 
 /**
- *
+ * HTMLDocument Object for saving instance of passed urls
+ * Creates and holds htmloutput string, sequences, links, and other elements of html page
  */
 public class HTMLDocument implements HTMLDocumentInterface {
-
-
-    private final String propertyFile = "/app.properties";
 
     private String url;
     private String baseUri;
@@ -36,8 +34,9 @@ public class HTMLDocument implements HTMLDocumentInterface {
 
 
     /**
-     * Creates object out of passed url string
-     * @param url: String
+     *
+     * @param url: String value of url link to build values from
+     * @throws MalformedURLException for invalid urls
      */
     public HTMLDocument(String url) throws MalformedURLException {
         linkValidator = new LinkValidator(url);
@@ -47,8 +46,9 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
 
     /**
-     * file input as parameter used for testing purposes
-     * @param file
+     * Constructor for building values from input file. Used with testing specific testcases
+     * @param file: input file
+     * @param baseURI: base uri value for formatting relative links found in file
      */
     public HTMLDocument(File file, String baseURI) {
         try {
@@ -60,8 +60,10 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
 
     /**
-     *
-     * @param htmlString
+     * Adds all htmloutput strings, sequences, and links to document fields
+     * @param htmlString: string value of html content
+     * @throws MalformedURLException if base uri or link validation is performed on
+     *  an invalid link
      */
     private void setup(String htmlString) throws MalformedURLException {
         this.links.clear();
@@ -83,11 +85,11 @@ public class HTMLDocument implements HTMLDocumentInterface {
         this.outputString = this.formatHTMLOutput(htmlString);
     }
 
-    // PUBLIC METHODS
-
     /**
-     * @param url
-     * @return
+     * setter for url. Reupdates field values to hold generated information from new url
+     * @param url: url link string
+     * @return: boolean value on successful setting of new url
+     * @throws MalformedURLException if input url is invalid
      */
     public boolean setUrl(String url) throws MalformedURLException {
         this.url = url;
@@ -96,23 +98,43 @@ public class HTMLDocument implements HTMLDocumentInterface {
         return true;
     }
 
-
+    /**
+     * Getter function for url
+     * @return String url
+     */
     public String getUrl() { return this.url; }
+
+    /**
+     * Getter function for all links found
+     * @return list of link String values
+     */
     public ArrayList<String> getLinks() {
         return this.links;
     }
+
+    /**
+     * Getter function for all sequences found
+     * @return list of sequence string values
+     */
     public ArrayList<String> getSequences() {
         return this.sequences;
     }
+
+    /**
+     * Getter function for html output string formatted
+     * @return String htmloutput value
+     */
     public String getOutputString() {
         return this.outputString;
     }
 
 
     /**
-     *
-      * @param text
-     * @return
+     * Formatted html output string removes all content from in between tags, including content
+     *  between script and comment tags. Output also has a new line character after the closing head
+     *  head tag or before opening body tag
+     * @param text : htmldocument with only tags
+     * @return String value of html document stripped of all script and comment tags
      */
     private String formatOutput(String text) {
         String result = text.replaceAll(" +", "").replaceAll("\t", "");
@@ -156,9 +178,10 @@ public class HTMLDocument implements HTMLDocumentInterface {
 
     }
 
-
     /**
-     * @param curr : Element object for where to start document traversal
+     * Runs through current node and all its children to grab all text values and
+     *  attributes from nodes
+     * @param curr: current node at point of document traversal
      */
     private void traverseDoc(Element curr) {
         if (curr != null) {
@@ -183,7 +206,8 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
 
     /**
-     *
+     * Goes through all attributes found in html document to extract all valid links
+     * MalformedURLException if invalid url is found
      */
     private void findAllValidLinks() {
         LinkValidator linkValidator = null;
@@ -200,9 +224,8 @@ public class HTMLDocument implements HTMLDocumentInterface {
     }
 
     /**
-     *
-     * @param htmlString
-     * @return
+     * @param htmlString: String value of html document
+     * @return String value with only the tags from html document
      */
     private String formatHTMLOutput(String htmlString) {
         // get only tag content
@@ -237,8 +260,8 @@ public class HTMLDocument implements HTMLDocumentInterface {
 
     /**
      *
-     * @param fileName
-     * @return
+     * @param fileName String value of file to be created
+     * @return boolean value on whether successful file generation
      */
     public boolean generateFile(String fileName) {
         try {
