@@ -26,3 +26,4 @@ java -jar [jar-filename] [url] [output file name]
 
 ##### Sample Built file:
 * HTMLExtract-jar-with-dependencies.jar
+* Run: java -jar HTMLExtract-jar-with-dependencies.jar [url] [output_file_name]
